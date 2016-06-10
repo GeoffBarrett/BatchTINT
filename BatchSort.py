@@ -1,0 +1,758 @@
+import sys, json, time, os, subprocess, RunKlustaV2, functools
+from PyQt4 import QtGui, QtCore
+from PIL import Image
+
+'''Python 3.4, Libraries needed to install:
+PyQt4 - needs .whl file since it has C++ backbone, can't do pip
+H5Py - to interact with the HDF5 data (need .whl files for C dependicies)
+NumPy - required for H5Py: pip install numpy'''
+
+_author_ = "Geoffrey Barrett" #defines myself as the author
+
+Large_Font = ("Verdana", 12) # defines two fonts for different purposes (might not be used
+Small_Font = ("Verdana", 8)
+
+def background(self): #defines the background for each window
+    """providing the background info for each window"""
+    # Acquiring information about geometry
+    self.setWindowIcon(QtGui.QIcon('cumc-crown.png'))  # declaring the icon image
+    self.deskW, self.deskH = QtGui.QDesktopWidget().availableGeometry().getRect()[2:] #gets the window resolution
+    #self.setWindowState(QtCore.Qt.WindowMaximized) # will maximize the GUI
+    self.setGeometry(0, 0, self.deskW/2, self.deskH/2)  # Sets the window size, 800x460 is the size of our window
+
+    '''
+    # Making baackground image -----------------------------------------------------------------------------
+    self.juke_bcg = QtGui.QLabel(self)  # defining the background image
+    bcg_fname = os.getcwd() + "\\juke_background.png"  # defining the background images fullpath
+    im1 = Image.open(bcg_fname)  # using PIL to open the image
+    bcgwidth, bcgheight = im1.size  # a cquiring height/width from the img
+    bcg_pix = QtGui.QPixmap(bcg_fname)  # setting pixmap of background img
+    self.juke_bcg.setPixmap(bcg_pix)  # setting pixmap to the label that was set earlier
+    self.juke_bcg.setGeometry(0,0,bcgwidth,bcgheight)  # setting the geometry
+    '''
+
+class Window(QtGui.QWidget): #defines the window class (main window)
+
+    def __init__(self): #intiializes the main window
+        super(Window, self).__init__()
+        #self.setGeometry(50, 50, 500, 300)
+        background(self) #acquires some features from the background function we defined earlier
+        self.setWindowTitle("BatchTINT - Main Window") #sets the title of the window
+        self.home() # runs the home function
+
+
+    def home(self): # defines the home funciton (the main window)
+
+        # --- Reading in saved directory information ------
+        self.dirfile = 'directory.json' # defining the filename that stores the directory information
+        self.settings_fname = 'settings.json'
+
+        try: #attempts to run catches error if file not found
+            # No saved directory's need to create file
+            with open(self.dirfile, 'r+') as filename: #opens the defined file
+                dir_data = json.load(filename) #loads the directory data from file
+                cur_dir_name = dir_data['directory'] #defines the data
+        except FileNotFoundError: #runs if file not found
+            with open(self.dirfile, 'w') as filename: #opens a file
+                cur_dir_name = 'No Directory Currently Chosen!' #states that no directory was chosen
+                dir_data = {'directory' : cur_dir_name} #creates a dictionary
+                json.dump(dir_data, filename) #writes the dictioary to the file
+
+
+        #---------------logo --------------------------------
+
+        cumc_logo = QtGui.QLabel(self)  # defining the logo image
+        logo_fname = os.getcwd() + "\\BatchKlustaLogo.png"  # defining logo pathname
+        im2 = Image.open(logo_fname)  # opening the logo with PIL
+        # im2 = im2.resize((self.deskW,self.deskH), PIL.Image.ANTIALIAS)
+        # im2 = im2.resize((100,100), Image.ANTIALIAS)
+        logowidth, logoheight = im2.size  # acquiring the logo width/height
+        logo_pix = QtGui.QPixmap(logo_fname)  # getting the pixmap
+        cumc_logo.setPixmap(logo_pix)  # setting the pixmap
+        cumc_logo.setGeometry(0, 0, logowidth, logoheight)  # setting the geometry
+
+
+
+        # ------buttons ------------------------------------------
+        quitbtn = QtGui.QPushButton('Quit',self) # making a quit button
+        quitbtn.clicked.connect(self.close_app) #defining the quit button functionaility (once pressed)
+        quitbtn.setShortcut("Ctrl+Q") #creates shortcut for the quit button
+        #quitbtn.move()
+
+        self.setbtn = QtGui.QPushButton('Settings') #Creats the settings pushbutton
+
+        klustabtn = QtGui.QPushButton('Batch-TINT',self) #creates the batch-klusta pushbutotn
+
+
+        self.choose_dir = QtGui.QPushButton('Choose Directory',self) #creates the choose directory pushbutton
+
+        self.cur_dir = QtGui.QLineEdit(); #creates a line edit to display the chosen directory (current)
+        self.cur_dir.setText(cur_dir_name) #sets the text to the current directory
+        self.cur_dir.setAlignment(QtCore.Qt.AlignHCenter) #centers the text
+        self.cur_dir_name = cur_dir_name #defines an attribute to exchange info between classes/modules
+
+        klustabtn.clicked.connect(lambda: self.klusta(self.cur_dir_name)) #defines the button functionality once pressed
+
+        # ------------------------------------ version information -------------------------------------------------
+        mod_date = time.ctime(os.path.getmtime(os.getcwd() + "\\BatchSort.py")) # finds the modifcation date of the program
+        vers_label = QtGui.QLabel("BatchTINT V1.0 - Last Updated: " + mod_date) # creates a label with that information
+
+        # ------------------- page layout ----------------------------------------
+        layout = QtGui.QVBoxLayout()  # setting the layout
+
+        layout1 = QtGui.QHBoxLayout() # setting layout for the directory options
+        layout1.addWidget(self.choose_dir) #adding widgets to the first tab
+        layout1.addWidget(self.cur_dir)
+
+        #layout.addLayout(layout1)
+        #layout.addWidget(quitbtn)
+
+        btn_order = [klustabtn, self.setbtn, quitbtn] #defining button order (left to right)
+        btn_layout = QtGui.QHBoxLayout() #creating a widget to align the buttons
+        # btn_layout.addStretch(1)
+        for butn in btn_order: #adds the buttons in the proper order
+            btn_layout.addWidget(butn)
+            # btn_layout.addStretch(1)
+
+        layout_order = [cumc_logo, layout1, btn_layout] #creates the layout order for tab1
+
+
+        layout.addStretch(1) #adds the widgets/layouts according to the order
+        for order in layout_order:
+            if 'Layout' in order.__str__():
+                layout.addLayout(order)
+                layout.addStretch(1)
+            else:
+                layout.addWidget(order, 0, QtCore.Qt.AlignCenter)
+                layout.addStretch(1)
+
+        layout.addStretch(1) #adds stretch to put the version info at the buttom
+        layout.addWidget(vers_label) #adds the date modification/version number
+        self.setLayout(layout) #sets the widget to the one we defined
+
+        center(self) #centers the widget on the screen
+
+        self.show() #shows the widget
+
+    def klusta(self, directory): #function that runs klustakwik
+        dir_message = 'Analyzing the following direcotry: ' + directory #display message
+        print(dir_message) #prints the display message
+
+        # ------------- find all files within directory -------------------------------------
+        expt_list = os.listdir(directory)  #finds the files within the directory
+
+        num_files_dir_msg = 'Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
+        print(num_files_dir_msg) #prints message
+
+        # ----------- cycle through each file and find the tetrode files ----------------------------------------------
+        with open(self.settings_fname, 'r+') as filename:
+            self.settings = json.load(filename)
+
+        for expt in expt_list:
+            try:
+                RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
+            except NotADirectoryError:
+                continue
+
+        # --------------------------- makes a while loop that will check for new files to analyze -------------------
+        contents = os.listdir(directory) #lists the contents of the directory (folders)
+        count = len(directory) #counts the amount of files in the directory
+        dirmtime = os.stat(directory).st_mtime #finds the modification time of the file
+
+        ## creation of a while loop that will constantly check for new folders added to the directory
+        while True:
+            newmtime = os.stat(directory).st_mtime #finds the new modification time
+            if newmtime != dirmtime: #only execute if the new mod time doens't equal the old mod time
+                dirmtime = newmtime #sets the mod time to the new mod time for future iterations
+                newcontents = os.listdir(directory) #lists the new contents of the directory including added folders
+                added = list(set(newcontents).difference(contents))# finds the differences between the contents to state the files that were added
+                #added = list(added) #converts added to a list
+                if added: #runs if added exists as a variable
+                    for new_file in added: #cycles through the added files to analyze
+                        start_path = os.path.join(directory,new_file)
+                        total_size = 0
+                        total_size_old = 0
+                        file_complete = 0
+                        count_old = 0
+
+                        while file_complete == 0:
+                            time.sleep(5) #waits x amount of seconds
+                            total_size = 0
+                            count_old = len(start_path)
+                            # come up with way to have python wait until all the files have been transferred to the directory
+                            for dirpath, dirnames, filenames in os.walk(start_path):
+                                for f in filenames:
+                                    fp = os.path.join(dirpath, f)
+                                    total_size += os.path.getsize(fp)
+                            print(total_size)
+                            #if total_size > total_size_old and len(start_path) > count_old:
+                            if total_size > total_size_old:
+                                total_size_old = total_size
+                            elif total_size == total_size_old:
+                                file_complete = 1
+
+                        RunKlusta.runKlusta.klusta(self, new_file, directory) #analyzes the files
+                '''
+                removed = set(contents).difference(newcontents)
+                if removed:
+                    rem = "Files removed: %s" % (" ".join(removed))
+                    print(rem)
+                '''
+                contents = newcontents #defines the new contents of the folder
+
+            '''
+                #case where the infinite while loop breaks
+            elif :
+                return False
+            '''
+            #time.sleep(30) #checks every 30 seconds
+            time.sleep(1)  # checks every 30 seconds
+
+    def close_app(self):
+        # pop up window that asks if you really want to exit the app ------------------------------------------------
+
+        choice = QtGui.QMessageBox.question(self, "Quitting BatchTINT",
+                                            "Do you really want to exit?",
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if choice == QtGui.QMessageBox.Yes:
+            sys.exit()  # tells the app to quit
+        else:
+            pass
+
+class Settings_W(QtGui.QTabWidget):
+    def __init__(self):
+        super(Settings_W, self).__init__()
+
+        self.set_adv = {}
+        self.set_feats = {}
+        self.set_chan_inc = {}
+        self.position = {}
+
+        self.default_adv = {'MaxPos': 100, 'nStarts': 1, 'RandomSeed': 1,
+                       'DistThresh': 6907755, 'PenaltyK': 1, 'PenaltyKLogN': 0,
+                       'ChangedThresh': 0.05, 'MaxIter': 500, 'SplitEvery': 40,
+                       'FullStepEvery': 20, 'Subset': 1}
+
+        #self.settings_fname = 'settings.json'
+
+        tab1 = QtGui.QWidget() #creates the basic tab
+        tab2 = QtGui.QWidget() #creates the advanced tab
+
+        background(self)
+        # deskW, deskH = background.Background(self)
+        self.setWindowTitle("BatchTINT - Settings Window")
+
+
+        self.addTab(tab1,'Basic')
+        self.addTab(tab2, 'Advanced')
+
+        # ------------------ clustering features --------------------------------
+        clust_l = QtGui.QLabel('Clustering Features:')
+
+        grid_ft = QtGui.QGridLayout()
+        '''
+        self.clust_ft_names = ['PC1', 'PC2', 'PC3', 'PC4',
+                          'A', 'Vt', '', '',
+                          'P', 'T', 'tP', 'tT',
+                          'En', 'Ar', '', '']
+        '''
+        self.clust_ft_names = ['PC1', 'PC2', 'PC3', 'PC4',
+                               'A', 'Vt', 'P', 'T',
+                               'tP', 'tT', 'En', 'Ar']
+
+
+        for feat in self.clust_ft_names:
+            if feat != '':
+                self.set_feats[feat] = 0
+
+        self.clust_ft_cbs = {}
+
+        positions = [(i,j) for i in range(4) for j in range(4)]
+
+        for position, clust_ft_name in zip(positions, self.clust_ft_names):
+
+            if clust_ft_name == '':
+                continue
+            self.position[clust_ft_name] = position
+            self.clust_ft_cbs[position] = QtGui.QCheckBox(clust_ft_name)
+            grid_ft.addWidget(self.clust_ft_cbs[position], *position)
+            self.clust_ft_cbs[position].stateChanged.connect(
+                functools.partial(self.channel_feats, clust_ft_name, position))
+
+        #self.clust_ft_cbs.toggle()
+
+        clust_feat_lay = QtGui.QHBoxLayout()
+        clust_feat_lay.addWidget(clust_l)
+        clust_feat_lay.addLayout(grid_ft)
+
+        # --------------------------Channels to Include-------------------------------------------
+
+        chan_inc = QtGui.QLabel('Channels to Include:')
+
+        grid_chan = QtGui.QGridLayout()
+        self.chan_names = ['1', '2', '3', '4']
+
+        for chan in self.chan_names:
+            self.set_chan_inc[chan] = 0
+
+        self.chan_inc_cbs = {}
+
+        positions = [(i, j) for i in range(1) for j in range(4)]
+
+        for position, chan_name in zip(positions, self.chan_names):
+
+            if chan_name == '':
+                continue
+            self.position[chan_name] = position
+            self.chan_inc_cbs[position] = QtGui.QCheckBox(chan_name)
+            grid_chan.addWidget(self.chan_inc_cbs[position], *position)
+            self.chan_inc_cbs[position].stateChanged.connect(
+                functools.partial(self.channel_include, chan_name, position))
+
+        chan_name_lay = QtGui.QHBoxLayout()
+        chan_name_lay.addWidget(chan_inc)
+        chan_name_lay.addLayout(grid_chan)
+        # --------------------------basic lay doublespinbox------------------------------------------------
+        max_clust_l = QtGui.QLabel('Maximum Clusters: ')
+        min_clust_l = QtGui.QLabel('Minimum Clusters: ')
+
+        '''
+        max_clust = QtGui.QDoubleSpinBox()
+        min_clust = QtGui.QDoubleSpinBox()
+
+        clust_maxmin_order = [min_clust_l, min_clust, max_clust_l, max_clust]
+        clust_maxmin_lay = QtGui.QHBoxLayout()
+
+        for order in clust_maxmin_order:
+            clust_maxmin_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
+            clust_maxmin_lay.addStretch(1)
+        '''
+        # --------------------------adv lay doublespinbox------------------------------------------------
+
+        row1 = QtGui.QHBoxLayout()
+        row2 = QtGui.QHBoxLayout()
+        row3 = QtGui.QHBoxLayout()
+        row4 = QtGui.QHBoxLayout()
+        row5 = QtGui.QHBoxLayout()
+        row6 = QtGui.QHBoxLayout()
+
+        maxposclust_l = QtGui.QLabel('MaxPossibleClusters: ')
+        self.maxpos = QtGui.QLineEdit()
+
+        chThresh_l = QtGui.QLabel('ChangedThresh: ')
+        self.chThresh = QtGui.QLineEdit()
+
+        nStarts_l = QtGui.QLabel('nStarts: ')
+        self.nStarts = QtGui.QLineEdit()
+
+        MaxIter_l = QtGui.QLabel('MaxIter: ')
+        self.Maxiter = QtGui.QLineEdit()
+
+        RandomSeed_l = QtGui.QLabel('RandomSeed: ')
+        self.RandomSeed = QtGui.QLineEdit()
+
+        SplitEvery_l = QtGui.QLabel('SplitEvery: ')
+        self.SplitEvery = QtGui.QLineEdit()
+
+        DistThresh_l = QtGui.QLabel('DistThresh: ')
+        self.DistThresh = QtGui.QLineEdit()
+
+        FullStepEvery_l  = QtGui.QLabel('FullStepEvery: ')
+        self.FullStepEvery = QtGui.QLineEdit()
+
+        PenaltyK_l = QtGui.QLabel('PenaltyK: ')
+        self.PenaltyK = QtGui.QLineEdit()
+
+        Subset_l = QtGui.QLabel('Subset: ')
+        self.Subset = QtGui.QLineEdit()
+
+        PenaltyKLogN_l = QtGui.QLabel('PenaltyKLogN: ')
+        self.PenaltyKLogN = QtGui.QLineEdit()
+
+        row1order = [maxposclust_l, self.maxpos, chThresh_l, self.chThresh]
+        for order in row1order:
+            row1.addWidget(order)
+            #row1.addStretch(1)
+
+        row2order = [nStarts_l, self.nStarts, MaxIter_l, self.Maxiter]
+        for order in row2order:
+            row2.addWidget(order)
+            #row2.addStretch(1)
+
+        row3order = [RandomSeed_l, self.RandomSeed, SplitEvery_l, self.SplitEvery]
+        for order in row3order:
+            row3.addWidget(order)
+            #row3.addStretch(1)
+
+        row4order = [DistThresh_l, self.DistThresh, FullStepEvery_l, self.FullStepEvery]
+        for order in row4order:
+            row4.addWidget(order)
+            #row4.addStretch(1)
+
+        row5order = [PenaltyK_l, self.PenaltyK, Subset_l, self.Subset]
+        for order in row5order:
+            row5.addWidget(order)
+            #row5.addStretch(1)
+
+        row6order = [PenaltyKLogN_l, self.PenaltyKLogN]
+        for order in row6order:
+            row6.addWidget(order)
+            #row6.addStretch(1)
+
+        #------------------------ buttons ----------------------------------------------------
+        basicdefaultbtn = QtGui.QPushButton("Default", tab1)
+        advanceddefaultbtn = QtGui.QPushButton("Default", tab2)
+        advanceddefaultbtn.clicked.connect(self.adv_default)
+
+        self.backbtn = QtGui.QPushButton('Back', tab1)
+
+        self.backbtn2 = QtGui.QPushButton('Back', tab2)
+
+        apply_tab1 = QtGui.QPushButton('Apply', tab2)
+        apply_tab1.clicked.connect(self.apply_tab1)
+
+        apply_tab2 = QtGui.QPushButton('Apply',tab2)
+        apply_tab2.clicked.connect(self.apply_tab2)
+
+
+        basic_butn_order = [apply_tab1, basicdefaultbtn, self.backbtn]
+        basic_butn_lay = QtGui.QHBoxLayout()
+        for order in basic_butn_order:
+            basic_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
+            basic_butn_lay.addStretch(1)
+
+        adv_butn_order = [apply_tab2, advanceddefaultbtn, self.backbtn2]
+        adv_butn_lay = QtGui.QHBoxLayout()
+        for order in adv_butn_order:
+            adv_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
+            adv_butn_lay.addStretch(1)
+
+        # -------------------------- layouts ----------------------------------------------------
+
+        # basic_lay_order = [chan_name_lay, clust_feat_lay, clust_maxmin_lay, basic_butn_lay]
+        basic_lay_order = [chan_name_lay, clust_feat_lay, basic_butn_lay]
+        basic_lay = QtGui.QVBoxLayout()
+
+        #basic_lay.addStretch(1)
+        for order in basic_lay_order:
+            if 'Layout' in order.__str__():
+                basic_lay.addLayout(order)
+                basic_lay.addStretch(1)
+            else:
+                basic_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
+                basic_lay.addStretch(1)
+
+        tab1.setLayout(basic_lay)
+
+        adv_lay_order = [row1, row2, row3, row4, row5, row6, adv_butn_lay]
+        adv_lay = QtGui.QVBoxLayout()
+
+        # basic_lay.addStretch(1)
+        for order in adv_lay_order:
+            if 'Layout' in order.__str__():
+                adv_lay.addLayout(order)
+                adv_lay.addStretch(1)
+            else:
+                adv_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
+                adv_lay.addStretch(1)
+
+        tab2.setLayout(adv_lay)
+
+        self.settings_fname = 'settings.json'
+
+        try:
+            # No saved directory's need to create file
+            with open(self.settings_fname, 'r+') as filename:
+                self.settings = json.load(filename)
+                self.maxpos.setText(str(self.settings['MaxPos']))
+                self.chThresh.setText(str(self.settings['ChangedThresh']))
+                self.nStarts.setText(str(self.settings['nStarts']))
+                self.RandomSeed.setText(str(self.settings['RandomSeed']))
+                self.DistThresh.setText(str(self.settings['DistThresh']))
+                self.PenaltyK.setText(str(self.settings['PenaltyK']))
+                self.PenaltyKLogN.setText(str(self.settings['PenaltyKLogN']))
+                self.Maxiter.setText(str(self.settings['MaxIter']))
+                self.SplitEvery.setText(str(self.settings['SplitEvery']))
+                self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
+                self.Subset.setText(str(self.settings['Subset']))
+
+                for name in self.chan_names:
+                    if int(self.settings[name]) == 1:
+                        self.chan_inc_cbs[self.position[name]].toggle()
+
+                for feat in self.clust_ft_names:
+                    if feat != '':
+                        if int(self.settings[feat]) == 1:
+                            self.clust_ft_cbs[self.position[feat]].toggle()
+
+        except FileNotFoundError:
+            with open(self.settings_fname, 'w') as filename:
+
+                default_set_feats = self.set_feats
+                default_set_feats['PC1'] = 1
+                default_set_feats['PC2'] = 1
+                default_set_feats['PC3'] = 1
+
+                default_set_channels_inc = self.set_chan_inc
+                default_set_channels_inc['1'] = 1
+                default_set_channels_inc['2'] = 1
+                default_set_channels_inc['3'] = 1
+                default_set_channels_inc['4'] = 1
+
+                self.settings = {}
+
+                for dictionary in [self.default_adv, default_set_feats, default_set_channels_inc]:
+                    self.settings.update(dictionary)
+
+                json.dump(self.settings, filename)  # save the default values to this file
+
+                self.maxpos.setText(str(self.settings['MaxPos']))
+                self.chThresh.setText(str(self.settings['ChangedThresh']))
+                self.nStarts.setText(str(self.settings['nStarts']))
+                self.RandomSeed.setText(str(self.settings['RandomSeed']))
+                self.DistThresh.setText(str(self.settings['DistThresh']))
+                self.PenaltyK.setText(str(self.settings['PenaltyK']))
+                self.PenaltyKLogN.setText(str(self.settings['PenaltyKLogN']))
+                self.Maxiter.setText(str(self.settings['MaxIter']))
+                self.SplitEvery.setText(str(self.settings['SplitEvery']))
+                self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
+                self.Subset.setText(str(self.settings['Subset']))
+
+                for name in self.chan_names:
+                    if self.settings[name] == 1:
+                        self.chan_inc_cbs[self.position[name]].toggle()
+
+                for feat in self.clust_ft_names:
+                    if feat != '':
+                        if self.settings[feat] == 1:
+                            self.clust_ft_cbs[self.position[feat]].toggle()
+
+        center(self)
+        #self.show()
+
+    def channel_feats(self, clust_ft_name, position):
+        if self.clust_ft_cbs[position].isChecked():
+            self.set_feats[clust_ft_name] = 1
+        else:
+            self.set_feats[clust_ft_name] = 0
+
+    def channel_include(self,channel_name, position):
+        if self.chan_inc_cbs[position].isChecked():
+            self.set_chan_inc[channel_name] = 1
+        else:
+            self.set_chan_inc[channel_name] = 0
+
+    def adv_default(self):
+        self.settings = {}
+        for dictionary in [self.default_adv, self.set_chan_inc, self.set_feats]:
+            self.settings.update(dictionary)
+
+        with open(self.settings_fname, 'r+') as filename:
+            json.dump(self.settings, filename)  # save the default values to this file
+
+        self.maxpos.setText(str(self.settings['MaxPos']))
+        self.chThresh.setText(str(self.settings['ChangedThresh']))
+        self.nStarts.setText(str(self.settings['nStarts']))
+        self.RandomSeed.setText(str(self.settings['RandomSeed']))
+        self.DistThresh.setText(str(self.settings['DistThresh']))
+        self.PenaltyK.setText(str(self.settings['PenaltyK']))
+        self.PenaltyKLogN.setText(str(self.settings['PenaltyKLogN']))
+        self.Maxiter.setText(str(self.settings['MaxIter']))
+        self.SplitEvery.setText(str(self.settings['SplitEvery']))
+        self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
+        self.Subset.setText(str(self.settings['Subset']))
+
+    def apply_tab1(self):
+        with open(self.settings_fname, 'r+') as filename:
+            for name in self.chan_names:
+                if int(self.settings[name]) == 1:
+                    self.chan_inc_cbs[self.position[name]].toggle()
+
+            for feat in self.clust_ft_names:
+                if feat != '':
+                    if int(self.settings[feat]) == 1:
+                        self.clust_ft_cbs[self.position[feat]].toggle()
+
+            self.backbtn.animateClick()
+
+            json.dump(self.settings, filename)  # save the default values to this file
+
+    def apply_tab2(self):
+        with open(self.settings_fname, 'r+') as filename:
+
+            self.settings['MaxPos'] = self.maxpos.text()
+            self.settings['nStarts'] = self.nStarts.text()
+            self.settings['RandomSeed'] = self.RandomSeed.text()
+            self.settings['DistThresh'] = self.DistThresh.text()
+            self.settings['PenaltyK'] = self.PenaltyK.text()
+            self.settings['PenaltyKLogN'] = self.PenaltyKLogN.text()
+            self.settings['ChangedThresh'] = self.chThresh.text()
+            self.settings['MaxIter'] = self.Maxiter.text()
+            self.settings['SplitEvery'] = self.SplitEvery.text()
+            self.settings['FullStepEvery'] = self.FullStepEvery.text()
+            self.settings['Subset'] = self.Subset.text()
+
+            self.backbtn2.animateClick()
+
+            json.dump(self.settings, filename)  # save the default values to this file
+
+class Choose_Dir(QtGui.QWidget):
+    def __init__(self):
+        super(Choose_Dir, self).__init__()
+        background(self)
+        #deskW, deskH = background.Background(self)
+        width = self.deskW / 5
+        height = self.deskH / 5
+        self.setGeometry(0, 0, width, height)
+
+        self.dirfile = 'directory.json' # defining the directory filename
+
+
+        with open(self.dirfile, 'r+') as filename:
+            dir_data = json.load(filename)
+            cur_dir_name = dir_data['directory']
+
+        self.setWindowTitle("BatchTINT - Choose Directory")
+
+        # ---------------- defining instructions -----------------
+        instr = QtGui.QLabel("Choose the directory you are placing your TINT files to Batch-TINT")
+
+        # ----------------- buttons ----------------------------
+        self.dirbtn = QtGui.QPushButton('New Directory', self)
+        #dirbtn.clicked.connect(self.new_dir)
+
+        cur_dir_t = QtGui.QLabel('Current Directory:') #the label saying Current Directory
+        self.cur_dir_e = QtGui.QLineEdit() # the label that states the current directory
+        self.cur_dir_e.setText(cur_dir_name)
+        self.cur_dir_e.setAlignment(QtCore.Qt.AlignHCenter)
+        self.cur_dir_name = cur_dir_name
+
+
+        self.backbtn = QtGui.QPushButton('Back',self)
+        applybtn = QtGui.QPushButton('Apply', self)
+        applybtn.clicked.connect(self.apply_dir)
+
+        # ---------------- save checkbox -----------------------
+        self.save_cb = QtGui.QCheckBox('Leave Checked To Save Directory', self)
+        self.save_cb.toggle()
+        self.save_cb.stateChanged.connect(self.save_dir)
+
+        # ----------------- setting layout -----------------------
+
+        layout_dir = QtGui.QVBoxLayout()
+
+
+        layout_h1 = QtGui.QHBoxLayout()
+        layout_h1.addWidget(cur_dir_t)
+        layout_h1.addWidget(self.cur_dir_e)
+
+        layout_h2 = QtGui.QHBoxLayout()
+        layout_h2.addWidget(self.save_cb)
+
+        btn_layout = QtGui.QHBoxLayout()
+        btn_order = [self.dirbtn, applybtn, self.backbtn]
+
+        #btn_layout.addStretch(1)
+        for butn in btn_order:
+            btn_layout.addWidget(butn)
+            #btn_layout.addStretch(1)
+
+        layout_order = [instr, layout_h1, self.save_cb, btn_layout]
+
+        for order in layout_order:
+            if 'Layout' in order.__str__():
+                layout_dir.addLayout(order)
+            else:
+                layout_dir.addWidget(order, 0, QtCore.Qt.AlignCenter)
+
+        self.setLayout(layout_dir)
+
+        center(self)
+        #self.show()
+
+
+    def save_dir(self,state):
+        self.cur_dir_name = str(self.cur_dir_e.text())
+        if state == QtCore.Qt.Checked:  # do this if the Check Box is checked
+            print('checked')
+            with open(self.dirfile, 'r+') as filename:
+                dir_data = {'directory': self.cur_dir_name}
+                json.dump(dir_data, filename)
+        else:
+            print('unchecked')
+            #pass
+
+    def apply_dir(self):
+        self.cur_dir_name = str(self.cur_dir_e.text())
+        self.save_cb.checkState()
+
+        if self.save_cb.isChecked():  # do this if the Check Box is checked
+            self.save_dir(self.save_cb.checkState())
+        else:
+            pass
+
+@QtCore.pyqtSlot()
+def raise_w(new_window, old_window):
+    """ raise the current window"""
+    new_window.raise_()
+    new_window.show()
+    time.sleep(0.1)
+    old_window.hide()
+
+'''
+@QtCore.pyqtSlot()
+def raise_w(new_window):
+    """ raise the current window"""
+    new_window.show()
+    new_window.raise_()
+'''
+
+def center(self):
+    """centers the window on the screen"""
+    frameGm = self.frameGeometry()
+    screen = QtGui.QApplication.desktop().screenNumber(QtGui.QApplication.desktop().cursor().pos())
+    centerPoint = QtGui.QApplication.desktop().screenGeometry(screen).center()
+    frameGm.moveCenter(centerPoint)
+    self.move(frameGm.topLeft())
+
+
+def new_dir(self,main):
+    cur_dir_name = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+    self.cur_dir_name = cur_dir_name
+    self.cur_dir_e.setText(cur_dir_name)
+    main.cur_dir.setText(cur_dir_name)
+    main.cur_dir_name = cur_dir_name
+
+# ------- making a function that runs the entire GUI ----------
+def run():
+    app = QtGui.QApplication(sys.argv)
+
+    main_w = Window() # calling the main window
+    choose_dir_w = Choose_Dir() # calling the Choose Directory Window
+    settings_w = Settings_W() # calling the settings window
+
+    choose_dir_w.cur_dir_name = main_w.cur_dir_name # synchs the current directory on the main window
+
+    main_w.raise_() # making the main window on top
+
+    main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w,main_w)) # brings the directory window to the foreground
+    #main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w))
+
+    choose_dir_w.backbtn.clicked.connect(lambda: raise_w(main_w,choose_dir_w)) # brings the main window to the foreground
+    #choose_dir_w.backbtn.clicked.connect(lambda: raise_w(main_w))  # brings the main window to the foreground
+
+    main_w.setbtn.clicked.connect(lambda: raise_w(settings_w,main_w))
+    #main_w.setbtn.clicked.connect(lambda: raise_w(settings_w))
+
+    settings_w.backbtn.clicked.connect(lambda: raise_w(main_w, settings_w))
+    #settings_w.backbtn.clicked.connect(lambda: raise_w(main_w))
+
+    settings_w.backbtn2.clicked.connect(lambda: raise_w(main_w, settings_w))
+    #settings_w.backbtn2.clicked.connect(lambda: raise_w(main_w))
+
+    choose_dir_w.dirbtn.clicked.connect(lambda: new_dir(choose_dir_w,main_w)) # promps the user to choose a directory
+    #choose_dir_w.dirbtn.clicked.connect(lambda: new_dir(choose_dir_w))  # promps the user to choose a directory
+
+    sys.exit(app.exec_()) # prevents the window from immediatley exiting out
+
+run() # the command that calls run()
