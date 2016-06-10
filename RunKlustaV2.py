@@ -134,7 +134,10 @@ class runKlusta():
 
                     if set_file[:-1] + '.clu.' + str(tetrode) in new_cont:
                         processing = 0
-                        os.rename(set_path + '.clu.' + str(tetrode), set_path + '_' + str(tetrode) + '.cut')
+                        try:
+                            os.rename(set_path + '.clu.' + str(tetrode), set_path + '_' + str(tetrode) + '.cut')
+                        except PermissionError:
+                            processing = 1
 
         fin_msg = 'Analysis in this directory has been completed!'
         print(fin_msg)
