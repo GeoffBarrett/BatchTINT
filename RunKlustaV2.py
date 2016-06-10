@@ -1,5 +1,5 @@
-import os, read_data, json, subprocess
-
+# import os, read_data, json, subprocess
+import os, json, subprocess
 
 class runKlusta():
 
@@ -43,7 +43,7 @@ class runKlusta():
 
                 data_fname = tet_fname + '.dat'
 
-                read_data.BinaryFile.read_binary(self, tet_path)
+                # read_data.BinaryFile.read_binary(self, tet_path)
 
                 self.settings_fname = 'settings.json'
 
