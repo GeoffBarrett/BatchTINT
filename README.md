@@ -73,12 +73,16 @@ Type in the following into the Command Prompt:
 
 python -m pip install pillow
 
+7) you will also have to add tint to the system variable as we did before with GitHub and Python
+
+Add the following path: C:\Program Files (x86)\Axona\Tint
+
 # Running GUI
 
-Now in your command prompt you can type the following:
+Now in your command prompt you can type the following in order to run the GUI:
 
 python BatchSort.py
 
-in order to run the GUI
+
 
     
