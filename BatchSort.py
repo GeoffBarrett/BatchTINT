@@ -152,6 +152,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
             try:
                 RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
             except NotADirectoryError:
+                print(directory + ' is not a directory, skipping!')
                 continue
 
         # --------------------------- makes a while loop that will check for new files to analyze -------------------
@@ -227,8 +228,9 @@ class Settings_W(QtGui.QTabWidget):
         self.set_feats = {}
         self.set_chan_inc = {}
         self.position = {}
+        self.reporting = {}
 
-        self.default_adv = {'MaxPos': 100, 'nStarts': 1, 'RandomSeed': 1,
+        self.default_adv = {'MaxPos': 30, 'nStarts': 1, 'RandomSeed': 1,
                        'DistThresh': 6907755, 'PenaltyK': 1, 'PenaltyKLogN': 0,
                        'ChangedThresh': 0.05, 'MaxIter': 500, 'SplitEvery': 40,
                        'FullStepEvery': 20, 'Subset': 1}
@@ -245,17 +247,21 @@ class Settings_W(QtGui.QTabWidget):
 
         self.addTab(tab1,'Basic')
         self.addTab(tab2, 'Advanced')
+        # -------------------- number of tetrodes ---------------------
+
+        num_tet_l = QtGui.QLabel('Number of Tetrodes')
+        self.num_tet = QtGui.QLineEdit()
+
+        num_tet_lay = QtGui.QHBoxLayout()
+        num_tet_lay.addWidget(num_tet_l)
+        #num_tet_lay.addStretch('1')
+        num_tet_lay.addWidget(self.num_tet)
 
         # ------------------ clustering features --------------------------------
         clust_l = QtGui.QLabel('Clustering Features:')
 
         grid_ft = QtGui.QGridLayout()
-        '''
-        self.clust_ft_names = ['PC1', 'PC2', 'PC3', 'PC4',
-                          'A', 'Vt', '', '',
-                          'P', 'T', 'tP', 'tT',
-                          'En', 'Ar', '', '']
-        '''
+
         self.clust_ft_names = ['PC1', 'PC2', 'PC3', 'PC4',
                                'A', 'Vt', 'P', 'T',
                                'tP', 'tT', 'En', 'Ar']
@@ -285,6 +291,28 @@ class Settings_W(QtGui.QTabWidget):
         clust_feat_lay.addWidget(clust_l)
         clust_feat_lay.addLayout(grid_ft)
 
+        # -------------------------- reporting checkboxes ---------------------------------------
+
+        report_l = QtGui.QLabel('Reporting Options:')
+
+        self.report = ['Verbose', 'Screen', 'Log File']
+
+        self.report_cbs = {}
+
+        grid_report = QtGui.QGridLayout()
+
+        positions = [(i, j) for i in range(1) for j in range(4)]
+
+        for position, option in zip(positions, self.report):
+
+            if option == '':
+                continue
+            self.position[option] = position
+            self.report_cbs[position] = QtGui.QCheckBox(option)
+            grid_report.addWidget(self.report_cbs[position], position[0], position[1], QtCore.Qt.AlignCenter)
+            self.report_cbs[position].stateChanged.connect(
+                functools.partial(self.reporting_options, option, position))
+
         # --------------------------Channels to Include-------------------------------------------
 
         chan_inc = QtGui.QLabel('Channels to Include:')
@@ -313,10 +341,9 @@ class Settings_W(QtGui.QTabWidget):
         chan_name_lay.addWidget(chan_inc)
         chan_name_lay.addLayout(grid_chan)
         # --------------------------basic lay doublespinbox------------------------------------------------
+        '''
         max_clust_l = QtGui.QLabel('Maximum Clusters: ')
         min_clust_l = QtGui.QLabel('Minimum Clusters: ')
-
-        '''
         max_clust = QtGui.QDoubleSpinBox()
         min_clust = QtGui.QDoubleSpinBox()
 
@@ -419,18 +446,18 @@ class Settings_W(QtGui.QTabWidget):
         basic_butn_lay = QtGui.QHBoxLayout()
         for order in basic_butn_order:
             basic_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
-            basic_butn_lay.addStretch(1)
+           # basic_butn_lay.addStretch(1)
 
         adv_butn_order = [apply_tab2, advanceddefaultbtn, self.backbtn2]
         adv_butn_lay = QtGui.QHBoxLayout()
         for order in adv_butn_order:
             adv_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
-            adv_butn_lay.addStretch(1)
+            # adv_butn_lay.addStretch(1)
 
         # -------------------------- layouts ----------------------------------------------------
 
         # basic_lay_order = [chan_name_lay, clust_feat_lay, clust_maxmin_lay, basic_butn_lay]
-        basic_lay_order = [chan_name_lay, clust_feat_lay, basic_butn_lay]
+        basic_lay_order = [num_tet_lay, chan_name_lay, clust_feat_lay, grid_report, basic_butn_lay]
         basic_lay = QtGui.QVBoxLayout()
 
         #basic_lay.addStretch(1)
@@ -475,6 +502,7 @@ class Settings_W(QtGui.QTabWidget):
                 self.SplitEvery.setText(str(self.settings['SplitEvery']))
                 self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
                 self.Subset.setText(str(self.settings['Subset']))
+                self.num_tet.setText(str(self.settings['NumTet']))
 
                 for name in self.chan_names:
                     if int(self.settings[name]) == 1:
@@ -484,6 +512,10 @@ class Settings_W(QtGui.QTabWidget):
                     if feat != '':
                         if int(self.settings[feat]) == 1:
                             self.clust_ft_cbs[self.position[feat]].toggle()
+
+                for option in self.report:
+                    if int(self.settings[option]) == 1:
+                        self.report_cbs[self.position[option]].toggle()
 
         except FileNotFoundError:
             with open(self.settings_fname, 'w') as filename:
@@ -499,10 +531,18 @@ class Settings_W(QtGui.QTabWidget):
                 default_set_channels_inc['3'] = 1
                 default_set_channels_inc['4'] = 1
 
+
+                default_reporting = self.reporting
+                self.reporting['Verbose'] = 1
+                self.reporting['Screen'] = 1
+                self.reporting['Log File'] = 1
+
                 self.settings = {}
 
-                for dictionary in [self.default_adv, default_set_feats, default_set_channels_inc]:
+                for dictionary in [self.default_adv, default_set_feats, default_set_channels_inc, default_reporting]:
                     self.settings.update(dictionary)
+
+                self.settings['NumTet'] = '4'
 
                 json.dump(self.settings, filename)  # save the default values to this file
 
@@ -517,6 +557,7 @@ class Settings_W(QtGui.QTabWidget):
                 self.SplitEvery.setText(str(self.settings['SplitEvery']))
                 self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
                 self.Subset.setText(str(self.settings['Subset']))
+                self.num_tet.setText(str(self.settings['NumTet']))
 
                 for name in self.chan_names:
                     if self.settings[name] == 1:
@@ -527,8 +568,18 @@ class Settings_W(QtGui.QTabWidget):
                         if self.settings[feat] == 1:
                             self.clust_ft_cbs[self.position[feat]].toggle()
 
+                for option in self.report:
+                    if int(self.settings[option]) == 1:
+                        self.report_cbs[self.position[option]].toggle()
+
         center(self)
         #self.show()
+
+    def reporting_options(self, option, position):
+        if self.report_cbs[position].isChecked():
+            self.reporting[option] = 1
+        else:
+            self.reporting[option] = 0
 
     def channel_feats(self, clust_ft_name, position):
         if self.clust_ft_cbs[position].isChecked():
@@ -544,7 +595,7 @@ class Settings_W(QtGui.QTabWidget):
 
     def adv_default(self):
         self.settings = {}
-        for dictionary in [self.default_adv, self.set_chan_inc, self.set_feats]:
+        for dictionary in [self.default_adv, self.set_chan_inc, self.set_feats, self.reporting]:
             self.settings.update(dictionary)
 
         with open(self.settings_fname, 'r+') as filename:
@@ -564,14 +615,28 @@ class Settings_W(QtGui.QTabWidget):
 
     def apply_tab1(self):
         with open(self.settings_fname, 'r+') as filename:
-            for name in self.chan_names:
-                if int(self.settings[name]) == 1:
-                    self.chan_inc_cbs[self.position[name]].toggle()
 
-            for feat in self.clust_ft_names:
-                if feat != '':
-                    if int(self.settings[feat]) == 1:
-                        self.clust_ft_cbs[self.position[feat]].toggle()
+            for name, position in self.position.items():
+
+                if name in self.chan_names:
+                    if self.chan_inc_cbs[position].isChecked():
+                        self.settings[name] = 1
+                    else:
+                        self.settings[name] = 0
+
+                if name in self.clust_ft_names:
+                    if self.clust_ft_cbs[position].isChecked():
+                        self.settings[name] = 1
+                    else:
+                        self.settings[name] = 0
+
+                if name in self.report:
+                    if self.report_cbs[position].isChecked():
+                        self.settings[name] = 1
+                    else:
+                        self.settings[name] = 0
+
+            self.settings['NumTet'] = str(self.num_tet.text())
 
             self.backbtn.animateClick()
 
@@ -606,7 +671,6 @@ class Choose_Dir(QtGui.QWidget):
         self.setGeometry(0, 0, width, height)
 
         self.dirfile = 'directory.json' # defining the directory filename
-
 
         with open(self.dirfile, 'r+') as filename:
             dir_data = json.load(filename)
@@ -675,7 +739,7 @@ class Choose_Dir(QtGui.QWidget):
         self.cur_dir_name = str(self.cur_dir_e.text())
         if state == QtCore.Qt.Checked:  # do this if the Check Box is checked
             # print('checked')
-            with open(self.dirfile, 'r+') as filename:
+            with open(self.dirfile, 'w') as filename:
                 dir_data = {'directory': self.cur_dir_name}
                 json.dump(dir_data, filename)
         else:

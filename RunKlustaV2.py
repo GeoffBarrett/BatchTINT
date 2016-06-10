@@ -1,5 +1,5 @@
 # import os, read_data, json, subprocess
-import os, json, subprocess
+import os, json, subprocess, time
 
 class runKlusta():
 
@@ -13,13 +13,18 @@ class runKlusta():
 
         dir_new = os.path.join(directory, expt)  # makes a new directory
 
+        self.settings_fname = 'settings.json'
+
+        with open(self.settings_fname, 'r+') as filename:
+            self.settings = json.load(filename)
+
         f_list = os.listdir(dir_new)  # finds the files within that directory
         set_file = [file for file in f_list if '.set' in file]
         set_file = set_file[0][:-3]
         set_path = os.path.join(dir_new, set_file[:-1])
 
-        # tetrode_files = ['%s%d' % (set_file, i) for i in range(1, 5)]
-        tet_list = [file for file in f_list if file in ['%s%d' % (set_file, i) for i in range(1, 5)]]
+        tet_list = [file for file in f_list if file in ['%s%d' % (set_file, i)
+                                                        for i in range(1, int(self.settings['NumTet']) + 1)]]
 
         if tet_list == []:
             no_files_msg = 'There are no files that need analyzing in the "' + expt + '" folder!'
@@ -28,7 +33,7 @@ class runKlusta():
             # print(tet_list)
             for tet_fname in tet_list:
 
-                for i in range(1, 5):
+                for i in range(1, int(self.settings['NumTet']) + 1):
                     if ['%s%d' % ('.', i) in tet_fname][0]:
                         tetrode = i
 
@@ -44,11 +49,6 @@ class runKlusta():
                 data_fname = tet_fname + '.dat'
 
                 # read_data.BinaryFile.read_binary(self, tet_path)
-
-                self.settings_fname = 'settings.json'
-
-                with open(self.settings_fname, 'r+') as filename:
-                    self.settings = json.load(filename)
 
                 parm_space = ' '
                 kkparmstr = parm_space.join(['-MaxPossibleClusters', str(self.settings['MaxPos']),
@@ -101,9 +101,9 @@ class runKlusta():
                                            ])
 
                     report_seq = s.join(['\n[Reporting]',
-                                         'Log=' + '1',
-                                        'Verbose=' + '1',
-                                         'Screen=' + '1'
+                                         'Log=' + str(self.settings['Log File']),
+                                        'Verbose=' + str(self.settings['Verbose']),
+                                         'Screen=' + str(self.settings['Screen'])
                                          ])
 
                     for write_order in [main_seq, clust_ft_seq, report_seq]:
@@ -123,7 +123,18 @@ class runKlusta():
 
                 cmd.stdin.write(batch)
                 cmd.stdin.flush()
-                result = cmd.stdout.read()
-                print(result.decode())
+                # result = cmd.stdout.read()
+                # print(result.decode())
+
+                processing = 1
+
+                while processing:
+                    time.sleep(2)
+                    new_cont = os.listdir(dir_new)
+
+                    if set_file[:-1] + '.clu.' + str(tetrode) in new_cont:
+                        processing = 0
+                        os.rename(set_path + '.clu.' + str(tetrode), set_path + '_' + str(tetrode) + '.cut')
+
         fin_msg = 'Analysis in this directory has been completed!'
         print(fin_msg)
