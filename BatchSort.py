@@ -674,13 +674,13 @@ class Choose_Dir(QtGui.QWidget):
     def save_dir(self,state):
         self.cur_dir_name = str(self.cur_dir_e.text())
         if state == QtCore.Qt.Checked:  # do this if the Check Box is checked
-            print('checked')
+            # print('checked')
             with open(self.dirfile, 'r+') as filename:
                 dir_data = {'directory': self.cur_dir_name}
                 json.dump(dir_data, filename)
         else:
-            print('unchecked')
-            #pass
+            # print('unchecked')
+            pass
 
     def apply_dir(self):
         self.cur_dir_name = str(self.cur_dir_e.text())
@@ -690,6 +690,7 @@ class Choose_Dir(QtGui.QWidget):
             self.save_dir(self.save_cb.checkState())
         else:
             pass
+        self.backbtn.animateClick()
 
 @QtCore.pyqtSlot()
 def raise_w(new_window, old_window):
