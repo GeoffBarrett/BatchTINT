@@ -41,6 +41,16 @@ class runKlusta():
                 file_analyze_msg = 'Now analyzing the following file: ' + tet_fname
                 print(file_analyze_msg)
 
+                clu_name = set_path + '.clu.' + str(tetrode)
+                cut_path = set_path + '_' + str(tetrode) + '.cut'
+                cut_name = set_file[:-1] + '_' + str(tetrode) + '.cut'
+
+                if cut_name in f_list:
+                    already_done = 'The ' + set_file[:-1] + ' has already been analyzed, skipping!'
+                    print(already_done)
+                    continue
+
+
                 tet_path = os.path.join(dir_new, tet_fname)  # adding a .prm at the end will be the same as the PRM file
 
                 # ini_fname = tet_fname + '.ini'
@@ -80,6 +90,7 @@ class runKlusta():
                     s = "\n"
                     main_seq = s.join(['[Main]',
                                        str('Filename=' + '"' + set_path + '"'),
+                                       str('IDnumber=' + tetrode),
                                        str('KKparamstr=' + kkparmstr),
                                        str(inc_channels)
                                        ])
@@ -135,7 +146,7 @@ class runKlusta():
                     if set_file[:-1] + '.clu.' + str(tetrode) in new_cont:
                         processing = 0
                         try:
-                            os.rename(set_path + '.clu.' + str(tetrode), set_path + '_' + str(tetrode) + '.cut')
+                            os.rename(clu_name, cut_path)
                         except PermissionError:
                             processing = 1
 
