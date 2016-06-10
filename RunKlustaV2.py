@@ -18,7 +18,7 @@ class runKlusta():
         set_file = set_file[0][:-3]
         set_path = os.path.join(dir_new, set_file[:-1])
 
-        #tetrode_files = ['%s%d' % (set_file, i) for i in range(1, 5)]
+        # tetrode_files = ['%s%d' % (set_file, i) for i in range(1, 5)]
         tet_list = [file for file in f_list if file in ['%s%d' % (set_file, i) for i in range(1, 5)]]
 
         if tet_list == []:
@@ -123,7 +123,7 @@ class runKlusta():
 
                 cmd.stdin.write(batch)
                 cmd.stdin.flush()
-                #result = cmd.stdout.read()
-                #print(result.decode())
+                result = cmd.stdout.read()
+                print(result.decode())
         fin_msg = 'Analysis in this directory has been completed!'
         print(fin_msg)
