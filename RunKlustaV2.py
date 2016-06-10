@@ -90,7 +90,7 @@ class runKlusta():
                     s = "\n"
                     main_seq = s.join(['[Main]',
                                        str('Filename=' + '"' + set_path + '"'),
-                                       str('IDnumber=' + tetrode),
+                                       str('IDnumber=' + str(tetrode)),
                                        str('KKparamstr=' + kkparmstr),
                                        str(inc_channels)
                                        ])
