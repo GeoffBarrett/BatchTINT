@@ -141,7 +141,8 @@ class runKlusta():
                     if set_file[:-1] + '.clu.' + str(tetrode) in new_cont:
                         processing = 0
                         try:
-                            os.rename(clu_name, cut_path)
+                            # os.rename(clu_name, cut_path)
+                            pass
                         except PermissionError:
                             processing = 1
         cur_time = datetime.datetime.now().time()
