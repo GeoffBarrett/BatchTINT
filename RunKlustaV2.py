@@ -21,11 +21,19 @@ class runKlusta():
         f_list = os.listdir(dir_new)  # finds the files within that directory
 
         set_files = [file for file in f_list if '.set' in file]
+        cur_time = datetime.datetime.now().time()
+        set_msg = 'There are ' + str(len(set_files)) + "'.set' files in this directory"
+        print('[' + str(cur_time)[:8] + ']: ' + set_msg)
 
         for i in range(len(set_files)):
 
             set_file = set_files[i][:-3]
             set_path = os.path.join(dir_new, set_file[:-1])
+
+            cur_time = datetime.datetime.now().time()
+            cur_set_msg = 'Now analyzing tetrodes associated with the  ' + str(set_file[:-1]) + \
+                          " '.set' file."
+            print('[' + str(cur_time)[:8] + ']: ' + cur_set_msg)
 
             tet_list = [file for file in f_list if file in ['%s%d' % (set_file, i)
                                                             for i in range(1, int(self.settings['NumTet']) + 1)]]
@@ -134,7 +142,7 @@ class runKlusta():
                     cmd.stdin.write(batch)
                     cmd.stdin.flush()
 
-                    finished_analysis = ': The analysis on the "' + tet_fname + '" file is finished!'
+                    finished_analysis = ': The analysis of the "' + tet_fname + '" file is finished!'
                     print('[' + str(cur_time)[:8] + ']' + finished_analysis)
 
                     # result = cmd.stdout.read()
