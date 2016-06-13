@@ -197,7 +197,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                             count_old = 0
 
                             while file_complete == 0:
-                                time.sleep(30) #waits x amount of seconds
+                                time.sleep(45) #waits x amount of seconds
                                 total_size = 0
                                 count_old = len(start_path)
                                 # come up with way to have python wait until all the files have been transferred to the directory
