@@ -142,7 +142,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
         expt_list = os.listdir(directory)  #finds the files within the directory
         cur_time = datetime.datetime.now().time()
         num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
-        print(cur_time + num_files_dir_msg) #prints message
+        print(str(cur_time) + num_files_dir_msg) #prints message
 
         # ----------- cycle through each file and find the tetrode files ----------------------------------------------
         with open(self.settings_fname, 'r+') as filename:
@@ -198,7 +198,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                             cur_time = datetime.datetime.now().time()
                             download_msg = new_file + ': is still downloading... (' + str(total_size) +\
                                            ' bytes downloaded)!'
-                            print(cur_time + ': ' + download_msg)
+                            print(str(cur_time) + ': ' + download_msg)
                             #if total_size > total_size_old and len(start_path) > count_old:
                             if total_size > total_size_old:
                                 total_size_old = total_size

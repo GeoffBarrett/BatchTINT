@@ -9,7 +9,7 @@ class runKlusta():
     def klusta(self, expt, directory):
         cur_time = datetime.datetime.now().time()
         folder_msg = ': Now analyzing files in the "' + expt + '" folder!'
-        print(cur_time + folder_msg)
+        print(str(cur_time) + folder_msg)
 
         dir_new = os.path.join(directory, expt)  # makes a new directory
 
@@ -29,7 +29,7 @@ class runKlusta():
         if tet_list == []:
             cur_time = datetime.datetime.now().time()
             no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
-            print(cur_time + no_files_msg)
+            print(str(cur_time) + no_files_msg)
         else:
             # print(tet_list)
             for tet_fname in tet_list:
@@ -40,7 +40,7 @@ class runKlusta():
 
                 cur_time = datetime.datetime.now().time()
                 file_analyze_msg = ': Now analyzing the following file: ' + tet_fname
-                print(cur_time + file_analyze_msg)
+                print(str(cur_time) + file_analyze_msg)
 
                 clu_name = set_path + '.clu.' + str(tetrode)
                 cut_path = set_path + '_' + str(tetrode) + '.cut'
@@ -146,4 +146,4 @@ class runKlusta():
                             processing = 1
         cur_time = datetime.datetime.now().time()
         fin_msg = ': Analysis in this directory has been completed!'
-        print(cur_time + fin_msg)
+        print(str(cur_time) + fin_msg)
