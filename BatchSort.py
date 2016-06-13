@@ -135,105 +135,118 @@ class Window(QtGui.QWidget): #defines the window class (main window)
         self.show() #shows the widget
 
     def klusta(self, directory): #function that runs klustakwik
-        dir_message = 'Analyzing the following direcotry: ' + directory #display message
-        print(dir_message) #prints the display message
+        if directory == 'No Directory Currently Chosen!':
+            directory_msg = QtGui.QMessageBox.question(self, "No Chosen Directory: BatchTINT",
+                                                "You have not chosen a directory,\n please choose one to continue!",
+                                                QtGui.QMessageBox.Ok )
+            if directory_msg == QtGui.QMessageBox.Yes:
+                pass
 
-        # ------------- find all files within directory -------------------------------------
-        expt_list = os.listdir(directory)  #finds the files within the directory
-        cur_time = datetime.datetime.now().time()
-        num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
-        print(str(cur_time) + num_files_dir_msg) #prints message
+        else:
+            dir_message = 'Analyzing the following direcotry: ' + directory #display message
+            print(dir_message) #prints the display message
 
-        # ----------- cycle through each file and find the tetrode files ----------------------------------------------
-        with open(self.settings_fname, 'r+') as filename:
-            self.settings = json.load(filename)
+            # ------------- find all files within directory -------------------------------------
+            expt_list = os.listdir(directory)  #finds the files within the directory
+            cur_time = datetime.datetime.now().time()
+            num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
+            print(str(cur_time)[:8] + num_files_dir_msg) #prints message
 
-        for expt in expt_list:
+            # ----------- cycle through each file and find the tetrode files ----------------------------------------------
+            with open(self.settings_fname, 'r+') as filename:
+                self.settings = json.load(filename)
 
-            try:
-                dir_new = os.path.join(directory, expt)
-                f_list = os.listdir(dir_new)  # finds the files within that directory
-                set_file = [file for file in f_list if '.set' in file]
+            for expt in expt_list: # finding all the folders within the directory
 
-                if set_file == []:
-                    set_message = 'The following folder contains no .set file: ' + str(expt)
-                    print(set_message)
+                try:
+                    dir_new = os.path.join(directory, expt) # sets a new filepath for the directory
+                    f_list = os.listdir(dir_new)  # finds the files within that directory
+                    set_file = [file for file in f_list if '.set' in file] # finds the set file
+
+                    if set_file == []: # if there is no set file it will return as an empty list
+                        cur_time = datetime.datetime.now().time()
+                        set_message = ': The following folder contains no .set file: ' + str(expt)  # message saying no .set file
+                        print(str(cur_time)[:8] + set_message) # prints the message on the CMD
+                        continue
+
+                    RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
+                except NotADirectoryError:
+                    cur_time = datetime.datetime.now().time()
+                    print(str(cur_time)[:8] + ": " + directory + ' is not a directory, skipping!') # if the file is not a directory it prints this message
                     continue
 
-                RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
-            except NotADirectoryError:
-                print(directory + ' is not a directory, skipping!')
-                continue
+            # --------------------------- makes a while loop that will check for new files to analyze -------------------
+            contents = os.listdir(directory) #lists the contents of the directory (folders)
+            count = len(directory) #counts the amount of files in the directory
+            dirmtime = os.stat(directory).st_mtime #finds the modification time of the file
 
-        # --------------------------- makes a while loop that will check for new files to analyze -------------------
-        contents = os.listdir(directory) #lists the contents of the directory (folders)
-        count = len(directory) #counts the amount of files in the directory
-        dirmtime = os.stat(directory).st_mtime #finds the modification time of the file
-
-        ## creation of a while loop that will constantly check for new folders added to the directory
-        while True:
-            newmtime = os.stat(directory).st_mtime #finds the new modification time
-            if newmtime != dirmtime: #only execute if the new mod time doens't equal the old mod time
-                dirmtime = newmtime #sets the mod time to the new mod time for future iterations
-                newcontents = os.listdir(directory) #lists the new contents of the directory including added folders
-                added = list(set(newcontents).difference(contents))# finds the differences between the contents to state the files that were added
-                #added = list(added) #converts added to a list
-                if added: #runs if added exists as a variable
-                    for new_file in added: #cycles through the added files to analyze
-                        start_path = os.path.join(directory, new_file)
-                        total_size = 0
-                        total_size_old = 0
-                        file_complete = 0
-                        count_old = 0
-
-                        while file_complete == 0:
-                            time.sleep(30) #waits x amount of seconds
+            ## creation of a while loop that will constantly check for new folders added to the directory
+            while True:
+                newmtime = os.stat(directory).st_mtime #finds the new modification time
+                if newmtime != dirmtime: #only execute if the new mod time doens't equal the old mod time
+                    dirmtime = newmtime #sets the mod time to the new mod time for future iterations
+                    newcontents = os.listdir(directory) #lists the new contents of the directory including added folders
+                    added = list(set(newcontents).difference(contents))# finds the differences between the contents to state the files that were added
+                    #added = list(added) #converts added to a list
+                    if added: #runs if added exists as a variable
+                        for new_file in added: #cycles through the added files to analyze
+                            start_path = os.path.join(directory, new_file)
                             total_size = 0
-                            count_old = len(start_path)
-                            # come up with way to have python wait until all the files have been transferred to the directory
-                            for dirpath, dirnames, filenames in os.walk(start_path):
-                                for f in filenames:
-                                    fp = os.path.join(dirpath, f)
-                                    total_size += os.path.getsize(fp)
-                            cur_time = datetime.datetime.now().time()
-                            download_msg = new_file + ': is still downloading... (' + str(total_size) +\
-                                           ' bytes downloaded)!'
-                            print(str(cur_time) + ': ' + download_msg)
-                            #if total_size > total_size_old and len(start_path) > count_old:
-                            if total_size > total_size_old:
-                                total_size_old = total_size
-                            elif total_size == total_size_old:
-                                file_complete = 1
-                        try:
-                            dir_new = os.path.join(directory, new_file)
-                            f_list = os.listdir(dir_new)  # finds the files within that directory
-                            set_file = [file for file in f_list if '.set' in file]
+                            total_size_old = 0
+                            file_complete = 0
+                            count_old = 0
 
-                            if set_file == []:
-                                set_message = 'The following folder contains no .set file: ' + str(new_file)
-                                print(set_message)
+                            while file_complete == 0:
+                                time.sleep(30) #waits x amount of seconds
+                                total_size = 0
+                                count_old = len(start_path)
+                                # come up with way to have python wait until all the files have been transferred to the directory
+                                for dirpath, dirnames, filenames in os.walk(start_path):
+                                    for f in filenames:
+                                        fp = os.path.join(dirpath, f)
+                                        total_size += os.path.getsize(fp)
+                                cur_time = datetime.datetime.now().time()
+                                download_msg = new_file + ' is still downloading... (' + str(total_size) +\
+                                               ' bytes downloaded)!'
+                                print(str(cur_time)[:8] + ': ' + download_msg)
+                                #if total_size > total_size_old and len(start_path) > count_old:
+                                if total_size > total_size_old:
+                                    total_size_old = total_size
+                                elif total_size == total_size_old:
+                                    cur_time = datetime.datetime.now().time()
+                                    download_complete_msg = new_file + ' has finished downloading!'
+                                    print(str(cur_time)[:8] + ': ' + download_complete_msg)
+                                    file_complete = 1
+                            try:
+                                dir_new = os.path.join(directory, new_file)
+                                f_list = os.listdir(dir_new)  # finds the files within that directory
+                                set_file = [file for file in f_list if '.set' in file]
+
+                                if set_file == []:
+                                    set_message = 'The following folder contains no .set file: ' + str(new_file)
+                                    print(set_message)
+                                    continue
+
+                                RunKlustaV2.runKlusta.klusta(self, new_file,
+                                                             directory)  # runs the function that will perform the klusta'ing
+                            except NotADirectoryError:
+                                print(directory + ' is not a directory, skipping!')
                                 continue
+                    '''
+                    removed = set(contents).difference(newcontents)
+                    if removed:
+                        rem = "Files removed: %s" % (" ".join(removed))
+                        print(rem)
+                    '''
+                    contents = newcontents #defines the new contents of the folder
 
-                            RunKlustaV2.runKlusta.klusta(self, new_file,
-                                                         directory)  # runs the function that will perform the klusta'ing
-                        except NotADirectoryError:
-                            print(directory + ' is not a directory, skipping!')
-                            continue
                 '''
-                removed = set(contents).difference(newcontents)
-                if removed:
-                    rem = "Files removed: %s" % (" ".join(removed))
-                    print(rem)
+                    #case where the infinite while loop breaks
+                elif :
+                    return False
                 '''
-                contents = newcontents #defines the new contents of the folder
-
-            '''
-                #case where the infinite while loop breaks
-            elif :
-                return False
-            '''
-            #time.sleep(30) #checks every 30 seconds
-            time.sleep(1)  # checks every 30 seconds
+                #time.sleep(30) #checks every 30 seconds
+                time.sleep(1)  # checks every 30 seconds
 
     def close_app(self):
         # pop up window that asks if you really want to exit the app ------------------------------------------------
@@ -708,7 +721,7 @@ class Choose_Dir(QtGui.QWidget):
         instr = QtGui.QLabel("Choose the directory you are placing your TINT files to Batch-TINT")
 
         # ----------------- buttons ----------------------------
-        self.dirbtn = QtGui.QPushButton('New Directory', self)
+        self.dirbtn = QtGui.QPushButton('Choose Directory', self)
         #dirbtn.clicked.connect(self.new_dir)
 
         cur_dir_t = QtGui.QLabel('Current Directory:') #the label saying Current Directory
@@ -789,14 +802,6 @@ def raise_w(new_window, old_window):
     new_window.show()
     time.sleep(0.1)
     old_window.hide()
-
-'''
-@QtCore.pyqtSlot()
-def raise_w(new_window):
-    """ raise the current window"""
-    new_window.show()
-    new_window.raise_()
-'''
 
 def center(self):
     """centers the window on the screen"""
