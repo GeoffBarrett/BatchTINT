@@ -7,7 +7,7 @@ class runKlusta():
         super(runKlusta, self).__init__()
 
     def klusta(self, expt, directory):
-        cur_time = datetime.datetime.now.time()
+        cur_time = datetime.datetime.now().time()
         folder_msg = ': Now analyzing files in the "' + expt + '" folder!'
         print(cur_time + folder_msg)
 
@@ -27,7 +27,7 @@ class runKlusta():
                                                         for i in range(1, int(self.settings['NumTet']) + 1)]]
 
         if tet_list == []:
-            cur_time = datetime.datetime.now.time()
+            cur_time = datetime.datetime.now().time()
             no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
             print(cur_time + no_files_msg)
         else:
@@ -38,7 +38,7 @@ class runKlusta():
                     if ['%s%d' % ('.', i) in tet_fname][0]:
                         tetrode = i
 
-                cur_time = datetime.datetime.now.time()
+                cur_time = datetime.datetime.now().time()
                 file_analyze_msg = ': Now analyzing the following file: ' + tet_fname
                 print(cur_time + file_analyze_msg)
 
@@ -144,6 +144,6 @@ class runKlusta():
                             os.rename(clu_name, cut_path)
                         except PermissionError:
                             processing = 1
-        cur_time = datetime.datetime.now.time()
+        cur_time = datetime.datetime.now().time()
         fin_msg = ': Analysis in this directory has been completed!'
         print(cur_time + fin_msg)

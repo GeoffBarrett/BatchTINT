@@ -140,7 +140,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
 
         # ------------- find all files within directory -------------------------------------
         expt_list = os.listdir(directory)  #finds the files within the directory
-        cur_time = datetime.datetime.now.time()
+        cur_time = datetime.datetime.now().time()
         num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
         print(cur_time + num_files_dir_msg) #prints message
 
@@ -195,7 +195,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                                 for f in filenames:
                                     fp = os.path.join(dirpath, f)
                                     total_size += os.path.getsize(fp)
-                            cur_time = datetime.datetime.now.time()
+                            cur_time = datetime.datetime.now().time()
                             download_msg = new_file + ': is still downloading... (' + str(total_size) +\
                                            ' bytes downloaded)!'
                             print(cur_time + ': ' + download_msg)
