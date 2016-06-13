@@ -166,13 +166,13 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                     if set_file == []: # if there is no set file it will return as an empty list
                         cur_time = datetime.datetime.now().time()
                         set_message = ': The following folder contains no .set file: ' + str(expt)  # message saying no .set file
-                        print(str(cur_time)[:8] + set_message) # prints the message on the CMD
+                        print('[' + str(cur_time)[:8] + ']' + set_message) # prints the message on the CMD
                         continue
 
                     RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
                 except NotADirectoryError:
                     cur_time = datetime.datetime.now().time()
-                    print(str(cur_time)[:8] + ": " + expt + ' is not a directory, skipping!') # if the file is not a directory it prints this message
+                    print('[' + str(cur_time)[:8] + ']: ' + expt + ' is not a directory, skipping!') # if the file is not a directory it prints this message
                     continue
 
             # --------------------------- makes a while loop that will check for new files to analyze -------------------
@@ -208,14 +208,14 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                                 cur_time = datetime.datetime.now().time()
                                 download_msg = new_file + ' is still downloading... (' + str(total_size) +\
                                                ' bytes downloaded)!'
-                                print(str(cur_time)[:8] + ': ' + download_msg)
+                                print('[' + str(cur_time)[:8] + ']: ' + download_msg)
                                 #if total_size > total_size_old and len(start_path) > count_old:
                                 if total_size > total_size_old:
                                     total_size_old = total_size
                                 elif total_size == total_size_old:
                                     cur_time = datetime.datetime.now().time()
                                     download_complete_msg = new_file + ' has finished downloading!'
-                                    print(str(cur_time)[:8] + ': ' + download_complete_msg)
+                                    print('[' + str(cur_time)[:8] + ']: ' + download_complete_msg)
                                     file_complete = 1
                             try:
                                 dir_new = os.path.join(directory, new_file)
