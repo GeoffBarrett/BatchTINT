@@ -79,7 +79,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
         quitbtn.setShortcut("Ctrl+Q") #creates shortcut for the quit button
         #quitbtn.move()
 
-        self.setbtn = QtGui.QPushButton('Settings') #Creats the settings pushbutton
+        self.setbtn = QtGui.QPushButton('Klusta Settings') #Creats the settings pushbutton
 
         klustabtn = QtGui.QPushButton('Batch-TINT',self) #creates the batch-klusta pushbutotn
 
@@ -272,7 +272,7 @@ class Settings_W(QtGui.QTabWidget):
         self.reporting = {}
 
         self.default_adv = {'MaxPos': 30, 'nStarts': 1, 'RandomSeed': 1,
-                       'DistThresh': 6907755, 'PenaltyK': 1, 'PenaltyKLogN': 0,
+                       'DistThresh': 6907755, 'PenaltyK': 1.0, 'PenaltyKLogN': 0.0,
                        'ChangedThresh': 0.05, 'MaxIter': 500, 'SplitEvery': 40,
                        'FullStepEvery': 20, 'Subset': 1}
 
@@ -583,7 +583,7 @@ class Settings_W(QtGui.QTabWidget):
                 for dictionary in [self.default_adv, default_set_feats, default_set_channels_inc, default_reporting]:
                     self.settings.update(dictionary)
 
-                self.settings['NumTet'] = '4'
+                self.settings['NumTet'] = '8'
 
                 json.dump(self.settings, filename)  # save the default values to this file
 

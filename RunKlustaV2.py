@@ -57,6 +57,7 @@ class runKlusta():
 
                 parm_space = ' '
                 kkparmstr = parm_space.join(['-MaxPossibleClusters', str(self.settings['MaxPos']),
+                                             '-UseFeatures', '1111111111111',
                                              '-nStarts', str(self.settings['nStarts']),
                                             '-RandomSeed', str(self.settings['RandomSeed']),
                                              '-DistThresh', str(self.settings['DistThresh']),
