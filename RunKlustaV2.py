@@ -1,5 +1,5 @@
 # import os, read_data, json, subprocess
-import os, json, subprocess, time
+import os, json, subprocess, time, datetime
 
 class runKlusta():
 
@@ -7,9 +7,9 @@ class runKlusta():
         super(runKlusta, self).__init__()
 
     def klusta(self, expt, directory):
-
-        folder_msg = 'Now analyzing files in the "' + expt + '" folder!'
-        print(folder_msg)
+        cur_time = datetime.datetime.now.time()
+        folder_msg = ': Now analyzing files in the "' + expt + '" folder!'
+        print(cur_time + folder_msg)
 
         dir_new = os.path.join(directory, expt)  # makes a new directory
 
@@ -27,8 +27,9 @@ class runKlusta():
                                                         for i in range(1, int(self.settings['NumTet']) + 1)]]
 
         if tet_list == []:
-            no_files_msg = 'There are no files that need analyzing in the "' + expt + '" folder!'
-            print(no_files_msg)
+            cur_time = datetime.datetime.now.time()
+            no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
+            print(cur_time + no_files_msg)
         else:
             # print(tet_list)
             for tet_fname in tet_list:
@@ -37,9 +38,9 @@ class runKlusta():
                     if ['%s%d' % ('.', i) in tet_fname][0]:
                         tetrode = i
 
-
-                file_analyze_msg = 'Now analyzing the following file: ' + tet_fname
-                print(file_analyze_msg)
+                cur_time = datetime.datetime.now.time()
+                file_analyze_msg = ': Now analyzing the following file: ' + tet_fname
+                print(cur_time + file_analyze_msg)
 
                 clu_name = set_path + '.clu.' + str(tetrode)
                 cut_path = set_path + '_' + str(tetrode) + '.cut'
@@ -143,6 +144,6 @@ class runKlusta():
                             os.rename(clu_name, cut_path)
                         except PermissionError:
                             processing = 1
-
-        fin_msg = 'Analysis in this directory has been completed!'
-        print(fin_msg)
+        cur_time = datetime.datetime.now.time()
+        fin_msg = ': Analysis in this directory has been completed!'
+        print(cur_time + fin_msg)

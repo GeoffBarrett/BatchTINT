@@ -1,4 +1,4 @@
-import sys, json, time, os, subprocess, RunKlustaV2, functools
+import sys, json, time, os, subprocess, RunKlustaV2, functools, datetime
 from PyQt4 import QtGui, QtCore
 from PIL import Image
 
@@ -140,9 +140,9 @@ class Window(QtGui.QWidget): #defines the window class (main window)
 
         # ------------- find all files within directory -------------------------------------
         expt_list = os.listdir(directory)  #finds the files within the directory
-
-        num_files_dir_msg = 'Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
-        print(num_files_dir_msg) #prints message
+        cur_time = datetime.datetime.now.time()
+        num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
+        print(cur_time + num_files_dir_msg) #prints message
 
         # ----------- cycle through each file and find the tetrode files ----------------------------------------------
         with open(self.settings_fname, 'r+') as filename:
@@ -180,7 +180,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                 #added = list(added) #converts added to a list
                 if added: #runs if added exists as a variable
                     for new_file in added: #cycles through the added files to analyze
-                        start_path = os.path.join(directory,new_file)
+                        start_path = os.path.join(directory, new_file)
                         total_size = 0
                         total_size_old = 0
                         file_complete = 0
@@ -195,23 +195,26 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                                 for f in filenames:
                                     fp = os.path.join(dirpath, f)
                                     total_size += os.path.getsize(fp)
-                            print(total_size)
+                            cur_time = datetime.datetime.now.time()
+                            download_msg = new_file + ': is still downloading... (' + str(total_size) +\
+                                           ' bytes downloaded)!'
+                            print(cur_time + ': ' + download_msg)
                             #if total_size > total_size_old and len(start_path) > count_old:
                             if total_size > total_size_old:
                                 total_size_old = total_size
                             elif total_size == total_size_old:
                                 file_complete = 1
                         try:
-                            dir_new = os.path.join(directory, expt)
+                            dir_new = os.path.join(directory, new_file)
                             f_list = os.listdir(dir_new)  # finds the files within that directory
                             set_file = [file for file in f_list if '.set' in file]
 
                             if set_file == []:
-                                set_message = 'The following folder contains no .set file: ' + str(expt)
+                                set_message = 'The following folder contains no .set file: ' + str(new_file)
                                 print(set_message)
                                 continue
 
-                            RunKlustaV2.runKlusta.klusta(self, expt,
+                            RunKlustaV2.runKlusta.klusta(self, new_file,
                                                          directory)  # runs the function that will perform the klusta'ing
                         except NotADirectoryError:
                             print(directory + ' is not a directory, skipping!')
