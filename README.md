@@ -1,24 +1,29 @@
 # BatchTINT
 A GUI created by the Taub Institute in order to create an end-user friendly batch processing solution to complement Axona's new command line modification of TINT.
 
+This GUI will allow the user to define a directory. Within this directory it will be continuously (unless closed) searching for new files to analyze via Tint. The user simply drags a folder with the appropriate set files and tetrode data and the GUI will take care of the rest.
+
 # Requirements
-Operating System: Windows
+***Operating System***: Windows
 
 This GUI was created with the Windows operating system in mind. Therefore, it is untested on Mac OSX, as well as Linux. It is possible
 (though unlikely) that it would work on other operating systems.
 
 Suggested: Use of Python 3.4.4, PyQt4 is most compatible with this version of Python, however there are Python 3.5 versions that may work
+
 Python 3.4.4 can be downloaded here: https://www.python.org/downloads/release/python-344/
 
 # Installation
 
 1) For those that do not have GitHub installed on their desktop, they will need to install the GitHub Desktop Application: 
 https://desktop.github.com/
+
 2) The next step would be to open the Command Prompt
 
 3) In the command prompt navigate to the folder where you want to clone the repository (type in: cd folder_path)
 
 4) Then your next step will be to clone the repository by typing in the following to your Command Prompt:
+
 git clone https://github.com/GeoffBarrett/BatchTINT.git
 
 Note: If there is an error produced by the Command Prompt saying the following: 
@@ -27,9 +32,11 @@ ensure that you have added the appropriate git locations to the path system vari
 
 
   a) First. you are going to need to find the location of git-core and copy the path, it will be similar to the following:
+  
   C:\Users\[Your Username]\AppData\Local\GitHub\[Something Similar to PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0\mingw32\libexec\git-core
   
   b) Second, you will need to find the path of the 'bin' folder within the 'mingw32' folder which will look similar to the following:
+  
   C:\Users\[your name]\AppData\Local\GitHub\PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0\mingw32\bin
   
   c) Go to the following window: Control Panel -> System and Security -> System -> Advanced Systems Settings 
@@ -80,9 +87,29 @@ Add the following path: C:\Program Files (x86)\Axona\Tint
 # Running GUI
 
 Now in your command prompt you can type the following in order to run the GUI:
+The easiest way to do it is to create a .bat file on the desktop that contains the following information:
 
+cd "[pathway to your BatchTINT folder]"
 python BatchSort.py
+exit
 
+when you click this .bat file it will run the program.
 
+Now you can see a main window of the GUI that states the current directory (if it's your first time opening the program, it will say 
+there is no directory chosen). You are going to want to click the 'choose directory' button and navigate to a directory that this program will analyze.
 
-    
+Once a directory has been chosen you can now look through the Klusta Settings (by clicking the Klusta Settings button) and look through the basic/advanced settings options. The format should look familiar as it is a replica (almost) of that which you've seen while using Tint.
+
+It is important to change the ***Number of Tetrodes*** option in the 'basic' tab. This will help the GUI look for the tetrode data. Our lab uses 4 and 8 tetrodes therefore the default for this GUI was set to 8. This number does not need to be exact, but it needs to be greater than or equal to the number of tetrodes you used in the files you are analyzing. If you have 8 tetrodes but the field has the number 4 filled it, it will only analyze the first four tetrdoes (if they exist in the folder). It will skip any non-existing tetrdoes.
+
+Once these settings have been applied, the values will be saved for the next time you open up the GUI.
+
+How this works is the GUI will look in the chosen directory for new folders. Once a new folder has been detected it will look for a '.set' file and it's tetrode files. One at a time these tetrode files will be analyzed via KlustaKwik through Tint. A Command Prompt will print messages stating what file it is analyzing, if there is a new file, etc. ***Do not close this Command Prompt or the GUI will stop***.
+
+As of this point in time, each folder added to the directory should have 1 '.set' file and it's corresponding tetrodes. It is possible that I might add the functionality of having multiple '.set' files in a given folder, however this functionality has not been added as of today (6/13/2016)
+
+# To Do
+
+- Add the functionality of multiple '.set' files in a single folder within the chosen directory
+- Add hyperthreading so it can analyze multiple tetrode files at the same time
+- Add a notification system so it can e-mail/text if the analysis has been completed or if an error has occured
