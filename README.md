@@ -33,11 +33,11 @@ ensure that you have added the appropriate git locations to the path system vari
 
   a) First. you are going to need to find the location of git-core and copy the path, it will be similar to the following:
   
-  C:\Users\[Your Username]\AppData\Local\GitHub\[Something Similar to PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0\mingw32\libexec\git-core
+  C:\Users\ [Your Username]\AppData\Local\GitHub\ [Something Similar to PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0]\mingw32\libexec\git-core
   
   b) Second, you will need to find the path of the 'bin' folder within the 'mingw32' folder which will look similar to the following:
   
-  C:\Users\[your name]\AppData\Local\GitHub\PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0\mingw32\bin
+  C:\Users\ [your name]\AppData\Local\GitHub\ [Something Similar to PortableGit_25d850739bc178b2eb13c3e2a9faafea2f9143c0]\mingw32\bin
   
   c) Go to the following window: Control Panel -> System and Security -> System -> Advanced Systems Settings 
   -> Advanced Tab (if not already on it) and -> Environmental Variables 
