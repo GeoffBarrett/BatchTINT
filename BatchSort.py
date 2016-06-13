@@ -149,7 +149,17 @@ class Window(QtGui.QWidget): #defines the window class (main window)
             self.settings = json.load(filename)
 
         for expt in expt_list:
+
             try:
+                dir_new = os.path.join(directory, expt)
+                f_list = os.listdir(dir_new)  # finds the files within that directory
+                set_file = [file for file in f_list if '.set' in file]
+
+                if set_file == []:
+                    set_message = 'The following folder contains no .set file: ' + str(expt)
+                    print(set_message)
+                    continue
+
                 RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
             except NotADirectoryError:
                 print(directory + ' is not a directory, skipping!')
