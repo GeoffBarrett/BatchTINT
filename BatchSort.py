@@ -143,14 +143,15 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                 pass
 
         else:
+            cur_time = datetime.datetime.now().time()
             dir_message = 'Analyzing the following direcotry: ' + directory #display message
-            print(dir_message) #prints the display message
+            print('[' + str(cur_time)[:8] + ']: ' + dir_message) #prints the display message
 
             # ------------- find all files within directory -------------------------------------
             expt_list = os.listdir(directory)  #finds the files within the directory
             cur_time = datetime.datetime.now().time()
             num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
-            print(str(cur_time)[:8] + num_files_dir_msg) #prints message
+            print('[' + str(cur_time)[:8] + ']' + num_files_dir_msg) #prints message
 
             # ----------- cycle through each file and find the tetrode files ----------------------------------------------
             with open(self.settings_fname, 'r+') as filename:
@@ -170,6 +171,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                         continue
 
                     RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
+
                 except NotADirectoryError:
                     cur_time = datetime.datetime.now().time()
                     print('[' + str(cur_time)[:8] + ']: ' + expt + ' is not a directory, skipping!') # if the file is not a directory it prints this message

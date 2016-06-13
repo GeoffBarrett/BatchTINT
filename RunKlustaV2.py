@@ -129,6 +129,10 @@ class runKlusta():
 
                 cmd.stdin.write(batch)
                 cmd.stdin.flush()
+
+                finished_analysis = ': The analysis on the "' + tet_fname + '" file is finished!'
+                print('[' + str(cur_time)[:8] + ']' + finished_analysis)
+
                 # result = cmd.stdout.read()
                 # print(result.decode())
 
