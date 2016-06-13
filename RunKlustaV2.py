@@ -128,6 +128,7 @@ class runKlusta():
 
                 cmd = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
+                # batch = []
                 batch = bytes(
                     'tint ' + '"' + set_path + '" ' + str(tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
                     ini_fname + '"\n'
