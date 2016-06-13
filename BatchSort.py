@@ -187,7 +187,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                         count_old = 0
 
                         while file_complete == 0:
-                            time.sleep(5) #waits x amount of seconds
+                            time.sleep(30) #waits x amount of seconds
                             total_size = 0
                             count_old = len(start_path)
                             # come up with way to have python wait until all the files have been transferred to the directory
@@ -201,8 +201,21 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                                 total_size_old = total_size
                             elif total_size == total_size_old:
                                 file_complete = 1
+                        try:
+                            dir_new = os.path.join(directory, expt)
+                            f_list = os.listdir(dir_new)  # finds the files within that directory
+                            set_file = [file for file in f_list if '.set' in file]
 
-                        RunKlusta.runKlusta.klusta(self, new_file, directory) #analyzes the files
+                            if set_file == []:
+                                set_message = 'The following folder contains no .set file: ' + str(expt)
+                                print(set_message)
+                                continue
+
+                            RunKlustaV2.runKlusta.klusta(self, expt,
+                                                         directory)  # runs the function that will perform the klusta'ing
+                        except NotADirectoryError:
+                            print(directory + ' is not a directory, skipping!')
+                            continue
                 '''
                 removed = set(contents).difference(newcontents)
                 if removed:
