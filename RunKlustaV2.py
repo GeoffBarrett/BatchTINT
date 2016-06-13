@@ -50,15 +50,9 @@ class runKlusta():
                     print(already_done)
                     continue
 
-
                 tet_path = os.path.join(dir_new, tet_fname)  # adding a .prm at the end will be the same as the PRM file
 
-                # ini_fname = tet_fname + '.ini'
                 ini_fname = tet_path + '.ini'
-
-                data_fname = tet_fname + '.dat'
-
-                # read_data.BinaryFile.read_binary(self, tet_path)
 
                 parm_space = ' '
                 kkparmstr = parm_space.join(['-MaxPossibleClusters', str(self.settings['MaxPos']),
@@ -123,7 +117,6 @@ class runKlusta():
 
                 log_fname = tet_path + '_log.txt'
 
-                #klusta_path = 'C:\\Users\\Geoffrey Barrett\\Miniconda3\\envs\\klusta\\Scripts\\klusta'
                 cmdline = ["cmd", "/q", "/k", "echo off"]
 
                 cmd = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
