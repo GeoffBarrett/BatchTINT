@@ -131,8 +131,7 @@ class runKlusta():
                 # batch = []
                 batch = bytes(
                     'tint ' + '"' + set_path + '" ' + str(tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
-                    ini_fname + '"\n'
-                                'exit\n', 'ascii')
+                    ini_fname + '"\n', 'ascii')
 
                 cmd.stdin.write(batch)
                 cmd.stdin.flush()
