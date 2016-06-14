@@ -193,6 +193,7 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
                 pass
 
         elif klusta_ready:
+            self.hide()
             cur_time = datetime.datetime.now().time()
             dir_message = 'Analyzing the following direcotry: ' + directory  # display message
             print('[' + str(cur_time)[:8] + ']: ' + dir_message)  # prints the display message
