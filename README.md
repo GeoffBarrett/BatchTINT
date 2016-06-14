@@ -106,10 +106,9 @@ Once these settings have been applied, the values will be saved for the next tim
 
 How this works is the GUI will look in the chosen directory for new folders. Once a new folder has been detected it will look for a '.set' file and it's tetrode files. One at a time these tetrode files will be analyzed via KlustaKwik through Tint. A Command Prompt will print messages stating what file it is analyzing, if there is a new file, etc. ***Do not close this Command Prompt or the GUI will stop***.
 
-As of this point in time, each folder added to the directory should have 1 '.set' file and it's corresponding tetrodes. It is possible that I might add the functionality of having multiple '.set' files in a given folder, however this functionality has not been added as of today (6/13/2016)
+As long as each folder contains all the appropriate file types that Tint needs, the GUI will analyze the data approporiately. Prior to the newest update, you would have each session (One '.set' and it's corresponding files) per folder. Now the GUI will look for however many '.set' files there are within each folder and analyze their corresponding tetrode data.
 
 # To Do
 
-- Add the functionality of multiple '.set' files in a single folder within the chosen directory
 - Add hyperthreading so it can analyze multiple tetrode files at the same time
 - Add a notification system so it can e-mail/text if the analysis has been completed or if an error has occured
