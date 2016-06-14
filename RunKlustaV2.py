@@ -91,8 +91,6 @@ class runKlusta():
                                                  '-AssignToFirstClosestMask', '1',
                                                  '-PriorPoint', '1',
                                                  ])
-                    if self.settings['Silent'] == 0:
-                        kkparmstr = parm_space.join([kkparmstr, '/visible'])
 
                     s = "\n"
                     inc_channels = s.join(['[IncludeChannels]',
@@ -143,10 +141,16 @@ class runKlusta():
 
                     cmd = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-                    # batch = []
-                    batch = bytes(
-                        'tint ' + '"' + set_path + '" ' + str(tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
-                        ini_fname + '"\n', 'ascii')
+                    if self.settings['Silent'] == 0:
+                        batch = bytes(
+                            'tint ' + '"' + set_path + '" ' + str(
+                                tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
+                            ini_fname + '" /visible\n', 'ascii')
+                    else:
+                        batch = bytes(
+                            'tint ' + '"' + set_path + '" ' + str(
+                                tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
+                            ini_fname + '"\n', 'ascii')
 
                     cmd.stdin.write(batch)
                     cmd.stdin.flush()
