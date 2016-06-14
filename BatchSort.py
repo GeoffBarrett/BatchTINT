@@ -78,6 +78,7 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
         self.cur_dir = QtGui.QLineEdit()  # creates a line edit to display the chosen directory (current)
         self.cur_dir.setText(cur_dir_name)  # sets the text to the current directory
         self.cur_dir.setAlignment(QtCore.Qt.AlignHCenter)  # centers the text
+        self.cur_dir.setToolTip('The current directory that Batch-Tint will analyze.')
         self.cur_dir_name = cur_dir_name  # defines an attribute to exchange info between classes/modules
 
         klustabtn.clicked.connect(lambda: self.klusta(self.cur_dir_name))  # defines the button functionality once pressed
@@ -339,6 +340,7 @@ class Settings_W(QtGui.QTabWidget):
 
         num_tet_l = QtGui.QLabel('Number of Tetrodes')
         self.num_tet = QtGui.QLineEdit()
+        self.num_tet.setToolTip('The maximum number of tetrodes in your directory folders.')
 
         num_tet_lay = QtGui.QHBoxLayout()
         num_tet_lay.addWidget(num_tet_l)
@@ -424,6 +426,7 @@ class Settings_W(QtGui.QTabWidget):
             grid_chan.addWidget(self.chan_inc_cbs[position], *position)
             self.chan_inc_cbs[position].stateChanged.connect(
                 functools.partial(self.channel_include, chan_name, position))
+            self.chan_inc_cbs[position].setToolTip('Include channel ' + str(chan_name) + ' in the analysis.')
 
         chan_name_lay = QtGui.QHBoxLayout()
         chan_name_lay.addWidget(chan_inc)

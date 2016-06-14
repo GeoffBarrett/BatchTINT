@@ -22,7 +22,7 @@ class runKlusta():
 
         set_files = [file for file in f_list if '.set' in file]
         cur_time = datetime.datetime.now().time()
-        set_msg = 'There are ' + str(len(set_files)) + "'.set' files in this directory"
+        set_msg = 'There is(are) ' + str(len(set_files)) + " '.set' file(s) in this directory"
         print('[' + str(cur_time)[:8] + ']: ' + set_msg)
 
         for i in range(len(set_files)):
@@ -42,6 +42,11 @@ class runKlusta():
                 cur_time = datetime.datetime.now().time()
                 no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
                 print('[' + str(cur_time)[:8] + ']' + no_files_msg)
+            elif str(set_file[:-1]) + '.eeg' not in f_list:
+                cur_time = datetime.datetime.now().time()
+                no_eeg_msg = ': There is no "' + str(set_file[:-1]) + '.eeg' '" file in this folder!'
+                print('[' + str(cur_time)[:8] + ']' + no_eeg_msg)
+                continue
             else:
                 # print(tet_list)'
 
