@@ -151,9 +151,6 @@ class runKlusta():
                     cmd.stdin.write(batch)
                     cmd.stdin.flush()
 
-                    finished_analysis = ': The analysis of the "' + tet_fname + '" file is finished!'
-                    print('[' + str(cur_time)[:8] + ']' + finished_analysis)
-
                     # result = cmd.stdout.read()
                     # print(result.decode())
 
@@ -167,6 +164,8 @@ class runKlusta():
                             processing = 0
                             try:
                                 # os.rename(clu_name, cut_path)
+                                finished_analysis = ': The analysis of the "' + tet_fname + '" file is finished!'
+                                print('[' + str(cur_time)[:8] + ']' + finished_analysis)
                                 pass
                             except PermissionError:
                                 processing = 1
