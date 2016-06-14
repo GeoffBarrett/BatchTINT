@@ -43,7 +43,8 @@ class runKlusta():
                 no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
                 print('[' + str(cur_time)[:8] + ']' + no_files_msg)
             else:
-                # print(tet_list)
+                # print(tet_list)'
+
                 for tet_fname in tet_list:
 
                     for i in range(1, int(self.settings['NumTet']) + 1):
@@ -69,7 +70,7 @@ class runKlusta():
 
                     parm_space = ' '
                     kkparmstr = parm_space.join(['-MaxPossibleClusters', str(self.settings['MaxPos']),
-                                                 '-UseFeatures', '1111111111111',
+                                                 '-UseFeatures', str(self.settings['UseFeatures']),
                                                  '-nStarts', str(self.settings['nStarts']),
                                                 '-RandomSeed', str(self.settings['RandomSeed']),
                                                  '-DistThresh', str(self.settings['DistThresh']),
@@ -85,6 +86,9 @@ class runKlusta():
                                                  '-AssignToFirstClosestMask', '1',
                                                  '-PriorPoint', '1',
                                                  ])
+                    if self.settings['Silent'] == 0:
+                        kkparmstr = parm_space.join([kkparmstr, '/visible'])
+
                     s = "\n"
                     inc_channels = s.join(['[IncludeChannels]',
                                            '1=' + str(self.settings['1']),

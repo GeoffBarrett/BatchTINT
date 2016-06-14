@@ -7,59 +7,48 @@ PyQt4 - needs .whl file since it has C++ backbone, can't do pip
 H5Py - to interact with the HDF5 data (need .whl files for C dependicies)
 NumPy - required for H5Py: pip install numpy'''
 
-_author_ = "Geoffrey Barrett" #defines myself as the author
+_author_ = "Geoffrey Barrett"  # defines myself as the author
 
-Large_Font = ("Verdana", 12) # defines two fonts for different purposes (might not be used
+Large_Font = ("Verdana", 12)  # defines two fonts for different purposes (might not be used
 Small_Font = ("Verdana", 8)
 
-def background(self): #defines the background for each window
+
+def background(self):  # defines the background for each window
     """providing the background info for each window"""
     # Acquiring information about geometry
     self.setWindowIcon(QtGui.QIcon('cumc-crown.png'))  # declaring the icon image
-    self.deskW, self.deskH = QtGui.QDesktopWidget().availableGeometry().getRect()[2:] #gets the window resolution
-    #self.setWindowState(QtCore.Qt.WindowMaximized) # will maximize the GUI
+    self.deskW, self.deskH = QtGui.QDesktopWidget().availableGeometry().getRect()[2:]  # gets the window resolution
+    # self.setWindowState(QtCore.Qt.WindowMaximized) # will maximize the GUI
     self.setGeometry(0, 0, self.deskW/2, self.deskH/2)  # Sets the window size, 800x460 is the size of our window
 
-    '''
-    # Making baackground image -----------------------------------------------------------------------------
-    self.juke_bcg = QtGui.QLabel(self)  # defining the background image
-    bcg_fname = os.getcwd() + "\\juke_background.png"  # defining the background images fullpath
-    im1 = Image.open(bcg_fname)  # using PIL to open the image
-    bcgwidth, bcgheight = im1.size  # a cquiring height/width from the img
-    bcg_pix = QtGui.QPixmap(bcg_fname)  # setting pixmap of background img
-    self.juke_bcg.setPixmap(bcg_pix)  # setting pixmap to the label that was set earlier
-    self.juke_bcg.setGeometry(0,0,bcgwidth,bcgheight)  # setting the geometry
-    '''
 
-class Window(QtGui.QWidget): #defines the window class (main window)
+class Window(QtGui.QWidget):  # defines the window class (main window)
 
-    def __init__(self): #intiializes the main window
+    def __init__(self):  # intiializes the main window
         super(Window, self).__init__()
-        #self.setGeometry(50, 50, 500, 300)
-        background(self) #acquires some features from the background function we defined earlier
-        self.setWindowTitle("BatchTINT - Main Window") #sets the title of the window
-        self.home() # runs the home function
+        # self.setGeometry(50, 50, 500, 300)
+        background(self)  # acquires some features from the background function we defined earlier
+        self.setWindowTitle("BatchTINT - Main Window")  # sets the title of the window
+        self.home()  # runs the home function
 
-
-    def home(self): # defines the home funciton (the main window)
+    def home(self):  # defines the home funciton (the main window)
 
         # --- Reading in saved directory information ------
         self.dirfile = 'directory.json' # defining the filename that stores the directory information
         self.settings_fname = 'settings.json'
 
-        try: #attempts to run catches error if file not found
+        try:  # attempts to run catches error if file not found
             # No saved directory's need to create file
-            with open(self.dirfile, 'r+') as filename: #opens the defined file
-                dir_data = json.load(filename) #loads the directory data from file
-                cur_dir_name = dir_data['directory'] #defines the data
-        except FileNotFoundError: #runs if file not found
-            with open(self.dirfile, 'w') as filename: #opens a file
-                cur_dir_name = 'No Directory Currently Chosen!' #states that no directory was chosen
-                dir_data = {'directory' : cur_dir_name} #creates a dictionary
-                json.dump(dir_data, filename) #writes the dictioary to the file
+            with open(self.dirfile, 'r+') as filename:  # opens the defined file
+                dir_data = json.load(filename)  # loads the directory data from file
+                cur_dir_name = dir_data['directory']  # defines the data
+        except FileNotFoundError:  # runs if file not found
+            with open(self.dirfile, 'w') as filename:  # opens a file
+                cur_dir_name = 'No Directory Currently Chosen!'  # states that no directory was chosen
+                dir_data = {'directory' : cur_dir_name} # creates a dictionary
+                json.dump(dir_data, filename)  # writes the dictioary to the file
 
-
-        #---------------logo --------------------------------
+        # ---------------logo --------------------------------
 
         cumc_logo = QtGui.QLabel(self)  # defining the logo image
         logo_fname = os.getcwd() + "\\BatchKlustaLogo.png"  # defining logo pathname
@@ -71,53 +60,98 @@ class Window(QtGui.QWidget): #defines the window class (main window)
         cumc_logo.setPixmap(logo_pix)  # setting the pixmap
         cumc_logo.setGeometry(0, 0, logowidth, logoheight)  # setting the geometry
 
-
-
         # ------buttons ------------------------------------------
-        quitbtn = QtGui.QPushButton('Quit',self) # making a quit button
-        quitbtn.clicked.connect(self.close_app) #defining the quit button functionaility (once pressed)
-        quitbtn.setShortcut("Ctrl+Q") #creates shortcut for the quit button
-        #quitbtn.move()
+        quitbtn = QtGui.QPushButton('Quit',self)  # making a quit button
+        quitbtn.clicked.connect(self.close_app)  # defining the quit button functionality (once pressed)
+        quitbtn.setShortcut("Ctrl+Q")  # creates shortcut for the quit button
+        quitbtn.setToolTip('Click to quit Batch-Tint!')
+        # quitbtn.move()
 
-        self.setbtn = QtGui.QPushButton('Klusta Settings') #Creats the settings pushbutton
+        self.setbtn = QtGui.QPushButton('Klusta Settings')  # Creates the settings pushbutton
+        self.setbtn.setToolTip('Define the settings that KlustaKwik will use.')
 
-        klustabtn = QtGui.QPushButton('Batch-TINT',self) #creates the batch-klusta pushbutotn
+        klustabtn = QtGui.QPushButton('Batch-TINT', self)  # creates the batch-klusta pushbutton
+        klustabtn.setToolTip('Click to perform batch analysis via Tint and KlustaKwik!')
+
+        self.choose_dir = QtGui.QPushButton('Choose Directory', self)  # creates the choose directory pushbutton
+
+        self.cur_dir = QtGui.QLineEdit()  # creates a line edit to display the chosen directory (current)
+        self.cur_dir.setText(cur_dir_name)  # sets the text to the current directory
+        self.cur_dir.setAlignment(QtCore.Qt.AlignHCenter)  # centers the text
+        self.cur_dir_name = cur_dir_name  # defines an attribute to exchange info between classes/modules
+
+        klustabtn.clicked.connect(lambda: self.klusta(self.cur_dir_name))  # defines the button functionality once pressed
+
+        # ------------------------------------ check box + hyperthread ------------------------------------------------
+
+        self.silent_cb = QtGui.QCheckBox('Run Silently')
+        self.silent_cb.setToolTip("Check if you want Tint to run in the background.")
+
+        self.hyperthread_cb = QtGui.QCheckBox('Hyperthread')
+        self.hyperthread_cb.setToolTip('Check if you want to run multiple tetrodes simultaneously')
+
+        hyperthread_l = QtGui.QLabel('# Threads:')
+        hyperthread_l.setToolTip('Input the number of tetrodes you want to run simultaneously')
+
+        self.hyperthread = QtGui.QLineEdit()
+
+        hyper_layout = QtGui.QHBoxLayout()
 
 
-        self.choose_dir = QtGui.QPushButton('Choose Directory',self) #creates the choose directory pushbutton
+        for order in [self.hyperthread_cb, hyperthread_l, self.hyperthread]:
+            if 'Layout' in order.__str__():
+                hyper_layout.addLayout(order)
+                # hyper_layout.addStretch(1)
+            else:
+                hyper_layout.addWidget(order, 0, QtCore.Qt.AlignCenter)
+                # hyper_layout.addWidget(order)
+                # hyper_layout.addStretch(1)
 
-        self.cur_dir = QtGui.QLineEdit(); #creates a line edit to display the chosen directory (current)
-        self.cur_dir.setText(cur_dir_name) #sets the text to the current directory
-        self.cur_dir.setAlignment(QtCore.Qt.AlignHCenter) #centers the text
-        self.cur_dir_name = cur_dir_name #defines an attribute to exchange info between classes/modules
+        checkbox_layout = QtGui.QHBoxLayout()
+        checkbox_layout.addStretch(1)
+        checkbox_layout.addWidget(self.silent_cb)
+        checkbox_layout.addStretch(1)
+        checkbox_layout.addLayout(hyper_layout)
+        checkbox_layout.addStretch(1)
 
-        klustabtn.clicked.connect(lambda: self.klusta(self.cur_dir_name)) #defines the button functionality once pressed
+        try:
+            with open(self.settings_fname, 'r+') as filename:
+                settings = json.load(filename)
+                if settings['Silent'] == 1:
+                    self.silent_cb.toggle()
+                if settings['Hyper'] == 1:
+                    self.hyperthread_cb.toggle()
+                if settings['Hyper'] == 0:
+                    self.hyperthread.setDisabled(1)
+
+        except FileNotFoundError:
+            self.silent_cb.toggle()
+            self.hyperthread.setDisabled(1)
 
         # ------------------------------------ version information -------------------------------------------------
-        mod_date = time.ctime(os.path.getmtime(os.getcwd() + "\\BatchSort.py")) # finds the modifcation date of the program
-        vers_label = QtGui.QLabel("BatchTINT V1.0 - Last Updated: " + mod_date) # creates a label with that information
+        mod_date = time.ctime(os.path.getmtime(os.getcwd() + "\\BatchSort.py"))  # finds the modifcation date of the program
+        vers_label = QtGui.QLabel("BatchTINT V1.0 - Last Updated: " + mod_date)  # creates a label with that information
 
         # ------------------- page layout ----------------------------------------
         layout = QtGui.QVBoxLayout()  # setting the layout
 
         layout1 = QtGui.QHBoxLayout() # setting layout for the directory options
-        layout1.addWidget(self.choose_dir) #adding widgets to the first tab
+        layout1.addWidget(self.choose_dir)  # adding widgets to the first tab
         layout1.addWidget(self.cur_dir)
 
-        #layout.addLayout(layout1)
-        #layout.addWidget(quitbtn)
+        # layout.addLayout(layout1)
+        # layout.addWidget(quitbtn)
 
-        btn_order = [klustabtn, self.setbtn, quitbtn] #defining button order (left to right)
-        btn_layout = QtGui.QHBoxLayout() #creating a widget to align the buttons
+        btn_order = [klustabtn, self.setbtn, quitbtn]  # defining button order (left to right)
+        btn_layout = QtGui.QHBoxLayout()  # creating a widget to align the buttons
         # btn_layout.addStretch(1)
-        for butn in btn_order: #adds the buttons in the proper order
+        for butn in btn_order:  # adds the buttons in the proper order
             btn_layout.addWidget(butn)
             # btn_layout.addStretch(1)
 
-        layout_order = [cumc_logo, layout1, btn_layout] #creates the layout order for tab1
+        layout_order = [cumc_logo, layout1, checkbox_layout, btn_layout]  # creates the layout order for tab1
 
-
-        layout.addStretch(1) #adds the widgets/layouts according to the order
+        layout.addStretch(1)  # adds the widgets/layouts according to the order
         for order in layout_order:
             if 'Layout' in order.__str__():
                 layout.addLayout(order)
@@ -126,36 +160,49 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                 layout.addWidget(order, 0, QtCore.Qt.AlignCenter)
                 layout.addStretch(1)
 
-        layout.addStretch(1) #adds stretch to put the version info at the buttom
-        layout.addWidget(vers_label) #adds the date modification/version number
-        self.setLayout(layout) #sets the widget to the one we defined
+        layout.addStretch(1)  # adds stretch to put the version info at the buttom
+        layout.addWidget(vers_label)  # adds the date modification/version number
+        self.setLayout(layout)  # sets the widget to the one we defined
 
-        center(self) #centers the widget on the screen
+        center(self)  # centers the widget on the screen
 
-        self.show() #shows the widget
+        self.show()  # shows the widget
 
-    def klusta(self, directory): #function that runs klustakwik
+
+    def klusta(self, directory):  # function that runs klustakwik
+        klusta_ready = True
+
+        with open(self.settings_fname, 'r+') as filename:
+            self.settings = json.load(filename)
+        if self.settings['NumFet'] > 4:
+            fet_msg = QtGui.QMessageBox.question(self, "No Chosen Directory: BatchTINT",
+                                                "You have chosen more than four features,\n clustering will take a long time.\n"
+                                                "Do you realy want to continue?",
+                                                QtGui.QMessageBox.Yes,  QtGui.QMessageBox.No)
+            if fet_msg == QtGui.QMessageBox.No:
+                klusta_ready = False
+            elif fet_msg == QtGui.QMessageBox.Yes:
+                klusta_ready = True
+
         if directory == 'No Directory Currently Chosen!':
             directory_msg = QtGui.QMessageBox.question(self, "No Chosen Directory: BatchTINT",
                                                 "You have not chosen a directory,\n please choose one to continue!",
                                                 QtGui.QMessageBox.Ok )
-            if directory_msg == QtGui.QMessageBox.Yes:
+            if directory_msg == QtGui.QMessageBox.Ok:
                 pass
 
-        else:
+        elif klusta_ready:
             cur_time = datetime.datetime.now().time()
-            dir_message = 'Analyzing the following direcotry: ' + directory #display message
-            print('[' + str(cur_time)[:8] + ']: ' + dir_message) #prints the display message
+            dir_message = 'Analyzing the following direcotry: ' + directory  # display message
+            print('[' + str(cur_time)[:8] + ']: ' + dir_message)  # prints the display message
 
             # ------------- find all files within directory -------------------------------------
-            expt_list = os.listdir(directory)  #finds the files within the directory
+            expt_list = os.listdir(directory)   # finds the files within the directory
             cur_time = datetime.datetime.now().time()
-            num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!' #message that shows how many files were found
-            print('[' + str(cur_time)[:8] + ']' + num_files_dir_msg) #prints message
+            num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!'  # message that shows how many files were found
+            print('[' + str(cur_time)[:8] + ']' + num_files_dir_msg)  # prints message
 
-            # ----------- cycle through each file and find the tetrode files ----------------------------------------------
-            with open(self.settings_fname, 'r+') as filename:
-                self.settings = json.load(filename)
+            # ----------- cycle through each file and find the tetrode files ------------------------------------------
 
             for expt in expt_list: # finding all the folders within the directory
 
@@ -167,31 +214,31 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                     if set_file == []: # if there is no set file it will return as an empty list
                         cur_time = datetime.datetime.now().time()
                         set_message = ': The following folder contains no .set file: ' + str(expt)  # message saying no .set file
-                        print('[' + str(cur_time)[:8] + ']' + set_message) # prints the message on the CMD
+                        print('[' + str(cur_time)[:8] + ']' + set_message)  # prints the message on the CMD
                         continue
 
-                    RunKlustaV2.runKlusta.klusta(self, expt, directory) #runs the function that will perform the klusta'ing
+                    RunKlustaV2.runKlusta.klusta(self, expt, directory)  # runs the function that will perform the klusta'ing
 
                 except NotADirectoryError:
                     cur_time = datetime.datetime.now().time()
-                    print('[' + str(cur_time)[:8] + ']: ' + expt + ' is not a directory, skipping!') # if the file is not a directory it prints this message
+                    print('[' + str(cur_time)[:8] + ']: ' + expt + ' is not a directory, skipping!')  # if the file is not a directory it prints this message
                     continue
 
-            # --------------------------- makes a while loop that will check for new files to analyze -------------------
-            contents = os.listdir(directory) #lists the contents of the directory (folders)
-            count = len(directory) #counts the amount of files in the directory
-            dirmtime = os.stat(directory).st_mtime #finds the modification time of the file
+            # --------------------------- makes a while loop that will check for new files to analyze -----------------
+            contents = os.listdir(directory)  # lists the contents of the directory (folders)
+            count = len(directory)  # counts the amount of files in the directory
+            dirmtime = os.stat(directory).st_mtime  # finds the modification time of the file
 
-            ## creation of a while loop that will constantly check for new folders added to the directory
+            # creation of a while loop that will constantly check for new folders added to the directory
             while True:
-                newmtime = os.stat(directory).st_mtime #finds the new modification time
-                if newmtime != dirmtime: #only execute if the new mod time doens't equal the old mod time
-                    dirmtime = newmtime #sets the mod time to the new mod time for future iterations
-                    newcontents = os.listdir(directory) #lists the new contents of the directory including added folders
-                    added = list(set(newcontents).difference(contents))# finds the differences between the contents to state the files that were added
-                    #added = list(added) #converts added to a list
-                    if added: #runs if added exists as a variable
-                        for new_file in added: #cycles through the added files to analyze
+                newmtime = os.stat(directory).st_mtime  # finds the new modification time
+                if newmtime != dirmtime:  # only execute if the new mod time doens't equal the old mod time
+                    dirmtime = newmtime  # sets the mod time to the new mod time for future iterations
+                    newcontents = os.listdir(directory)  # lists the new contents of the directory including added folders
+                    added = list(set(newcontents).difference(contents)) # finds the differences between the contents to state the files that were added
+                    # added = list(added) #converts added to a list
+                    if added: # runs if added exists as a variable
+                        for new_file in added: # cycles through the added files to analyze
                             start_path = os.path.join(directory, new_file)
                             total_size = 0
                             total_size_old = 0
@@ -199,7 +246,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                             count_old = 0
 
                             while file_complete == 0:
-                                time.sleep(45) #waits x amount of seconds
+                                time.sleep(45) # waits x amount of seconds
                                 total_size = 0
                                 count_old = len(start_path)
                                 # come up with way to have python wait until all the files have been transferred to the directory
@@ -211,7 +258,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                                 download_msg = new_file + ' is still downloading... (' + str(total_size) +\
                                                ' bytes downloaded)!'
                                 print('[' + str(cur_time)[:8] + ']: ' + download_msg)
-                                #if total_size > total_size_old and len(start_path) > count_old:
+                                # if total_size > total_size_old and len(start_path) > count_old:
                                 if total_size > total_size_old:
                                     total_size_old = total_size
                                 elif total_size == total_size_old:
@@ -240,14 +287,14 @@ class Window(QtGui.QWidget): #defines the window class (main window)
                         rem = "Files removed: %s" % (" ".join(removed))
                         print(rem)
                     '''
-                    contents = newcontents #defines the new contents of the folder
+                    contents = newcontents  # defines the new contents of the folder
 
                 '''
                     #case where the infinite while loop breaks
                 elif :
                     return False
                 '''
-                #time.sleep(30) #checks every 30 seconds
+                # time.sleep(30) #checks every 30 seconds
                 time.sleep(1)  # checks every 30 seconds
 
     def close_app(self):
@@ -260,6 +307,7 @@ class Window(QtGui.QWidget): #defines the window class (main window)
             sys.exit()  # tells the app to quit
         else:
             pass
+
 
 class Settings_W(QtGui.QTabWidget):
     def __init__(self):
@@ -276,17 +324,16 @@ class Settings_W(QtGui.QTabWidget):
                        'ChangedThresh': 0.05, 'MaxIter': 500, 'SplitEvery': 40,
                        'FullStepEvery': 20, 'Subset': 1}
 
-        #self.settings_fname = 'settings.json'
+         #self.settings_fname = 'settings.json'
 
-        tab1 = QtGui.QWidget() #creates the basic tab
-        tab2 = QtGui.QWidget() #creates the advanced tab
+        tab1 = QtGui.QWidget()  # creates the basic tab
+        tab2 = QtGui.QWidget()  # creates the advanced tab
 
         background(self)
         # deskW, deskH = background.Background(self)
         self.setWindowTitle("BatchTINT - Settings Window")
 
-
-        self.addTab(tab1,'Basic')
+        self.addTab(tab1, 'Basic')
         self.addTab(tab2, 'Advanced')
         # -------------------- number of tetrodes ---------------------
 
@@ -295,7 +342,7 @@ class Settings_W(QtGui.QTabWidget):
 
         num_tet_lay = QtGui.QHBoxLayout()
         num_tet_lay.addWidget(num_tet_l)
-        #num_tet_lay.addStretch('1')
+        # num_tet_lay.addStretch('1')
         num_tet_lay.addWidget(self.num_tet)
 
         # ------------------ clustering features --------------------------------
@@ -381,6 +428,7 @@ class Settings_W(QtGui.QTabWidget):
         chan_name_lay = QtGui.QHBoxLayout()
         chan_name_lay.addWidget(chan_inc)
         chan_name_lay.addLayout(grid_chan)
+
         # --------------------------basic lay doublespinbox------------------------------------------------
         '''
         max_clust_l = QtGui.QLabel('Maximum Clusters: ')
@@ -467,29 +515,30 @@ class Settings_W(QtGui.QTabWidget):
             row6.addWidget(order)
             #row6.addStretch(1)
 
-        #------------------------ buttons ----------------------------------------------------
-        basicdefaultbtn = QtGui.QPushButton("Default", tab1)
-        advanceddefaultbtn = QtGui.QPushButton("Default", tab2)
-        advanceddefaultbtn.clicked.connect(self.adv_default)
+        # ------------------------ buttons ----------------------------------------------------
+        self.basicdefaultbtn = QtGui.QPushButton("Default", tab1)
+        self.basicdefaultbtn.clicked.connect(self.basic_default)
+        self.advanceddefaultbtn = QtGui.QPushButton("Default", tab2)
+        self.advanceddefaultbtn.clicked.connect(self.adv_default)
 
         self.backbtn = QtGui.QPushButton('Back', tab1)
 
         self.backbtn2 = QtGui.QPushButton('Back', tab2)
 
-        apply_tab1 = QtGui.QPushButton('Apply', tab2)
-        apply_tab1.clicked.connect(self.apply_tab1)
+        self.apply_tab1btn = QtGui.QPushButton('Apply', tab1)
+        self.apply_tab1btn.clicked.connect(self.apply_tab1)
 
-        apply_tab2 = QtGui.QPushButton('Apply',tab2)
-        apply_tab2.clicked.connect(self.apply_tab2)
+        self.apply_tab2btn = QtGui.QPushButton('Apply',tab2)
+        self.apply_tab2btn.clicked.connect(self.apply_tab2)
 
 
-        basic_butn_order = [apply_tab1, basicdefaultbtn, self.backbtn]
+        basic_butn_order = [self.apply_tab1btn, self.basicdefaultbtn, self.backbtn]
         basic_butn_lay = QtGui.QHBoxLayout()
         for order in basic_butn_order:
             basic_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
            # basic_butn_lay.addStretch(1)
 
-        adv_butn_order = [apply_tab2, advanceddefaultbtn, self.backbtn2]
+        adv_butn_order = [self.apply_tab2btn, self.advanceddefaultbtn, self.backbtn2]
         adv_butn_lay = QtGui.QHBoxLayout()
         for order in adv_butn_order:
             adv_butn_lay.addWidget(order, 0, QtCore.Qt.AlignCenter)
@@ -559,31 +608,38 @@ class Settings_W(QtGui.QTabWidget):
                         self.report_cbs[self.position[option]].toggle()
 
         except FileNotFoundError:
+
             with open(self.settings_fname, 'w') as filename:
+                self.default_set_feats = self.set_feats
+                self.default_set_feats['PC1'] = 1
+                self.default_set_feats['PC2'] = 1
+                self.default_set_feats['PC3'] = 1
 
-                default_set_feats = self.set_feats
-                default_set_feats['PC1'] = 1
-                default_set_feats['PC2'] = 1
-                default_set_feats['PC3'] = 1
+                self.default_set_channels_inc = self.set_chan_inc
+                self.default_set_channels_inc['1'] = 1
+                self.default_set_channels_inc['2'] = 1
+                self.default_set_channels_inc['3'] = 1
+                self.default_set_channels_inc['4'] = 1
 
-                default_set_channels_inc = self.set_chan_inc
-                default_set_channels_inc['1'] = 1
-                default_set_channels_inc['2'] = 1
-                default_set_channels_inc['3'] = 1
-                default_set_channels_inc['4'] = 1
-
-
-                default_reporting = self.reporting
+                self.default_reporting = self.reporting
                 self.reporting['Verbose'] = 1
                 self.reporting['Screen'] = 1
                 self.reporting['Log File'] = 1
 
                 self.settings = {}
 
-                for dictionary in [self.default_adv, default_set_feats, default_set_channels_inc, default_reporting]:
+                for dictionary in [self.default_adv, self.default_set_feats, self.default_set_channels_inc, self.default_reporting]:
                     self.settings.update(dictionary)
 
+                default_set_feats = []
+                default_reporting = []
+                default_set_channels_inc = []
+
                 self.settings['NumTet'] = '8'
+                self.settings['NumFet'] = 3
+                self.settings['Silent'] = 1
+                self.settings['Hyper'] = 0
+                self.settings['UseFeatures'] = '1111111111111'
 
                 json.dump(self.settings, filename)  # save the default values to this file
 
@@ -612,7 +668,6 @@ class Settings_W(QtGui.QTabWidget):
                 for option in self.report:
                     if int(self.settings[option]) == 1:
                         self.report_cbs[self.position[option]].toggle()
-
         center(self)
         #self.show()
 
@@ -635,24 +690,64 @@ class Settings_W(QtGui.QTabWidget):
             self.set_chan_inc[channel_name] = 0
 
     def adv_default(self):
-        self.settings = {}
-        for dictionary in [self.default_adv, self.set_chan_inc, self.set_feats, self.reporting]:
-            self.settings.update(dictionary)
 
-        with open(self.settings_fname, 'r+') as filename:
-            json.dump(self.settings, filename)  # save the default values to this file
+        self.maxpos.setText(str(self.default_adv['MaxPos']))
+        self.chThresh.setText(str(self.default_adv['ChangedThresh']))
+        self.nStarts.setText(str(self.default_adv['nStarts']))
+        self.RandomSeed.setText(str(self.default_adv['RandomSeed']))
+        self.DistThresh.setText(str(self.default_adv['DistThresh']))
+        self.PenaltyK.setText(str(self.default_adv['PenaltyK']))
+        self.PenaltyKLogN.setText(str(self.default_adv['PenaltyKLogN']))
+        self.Maxiter.setText(str(self.default_adv['MaxIter']))
+        self.SplitEvery.setText(str(self.default_adv['SplitEvery']))
+        self.FullStepEvery.setText(str(self.default_adv['FullStepEvery']))
+        self.Subset.setText(str(self.default_adv['Subset']))
 
-        self.maxpos.setText(str(self.settings['MaxPos']))
-        self.chThresh.setText(str(self.settings['ChangedThresh']))
-        self.nStarts.setText(str(self.settings['nStarts']))
-        self.RandomSeed.setText(str(self.settings['RandomSeed']))
-        self.DistThresh.setText(str(self.settings['DistThresh']))
-        self.PenaltyK.setText(str(self.settings['PenaltyK']))
-        self.PenaltyKLogN.setText(str(self.settings['PenaltyKLogN']))
-        self.Maxiter.setText(str(self.settings['MaxIter']))
-        self.SplitEvery.setText(str(self.settings['SplitEvery']))
-        self.FullStepEvery.setText(str(self.settings['FullStepEvery']))
-        self.Subset.setText(str(self.settings['Subset']))
+        self.apply_tab2btn.animateClick()
+
+    def basic_default(self):
+
+        default_set_feats = {}
+        default_set_feats['PC1'] = 1
+        default_set_feats['PC2'] = 1
+        default_set_feats['PC3'] = 1
+
+        default_set_channels_inc = {}
+        default_set_channels_inc['1'] = 1
+        default_set_channels_inc['2'] = 1
+        default_set_channels_inc['3'] = 1
+        default_set_channels_inc['4'] = 1
+
+        default_reporting = {}
+        default_reporting['Verbose'] = 1
+        default_reporting['Screen'] = 1
+        default_reporting['Log File'] = 1
+
+        for name in self.chan_names:
+            default_keys = list(default_set_channels_inc.keys())
+            if name in default_keys and self.chan_inc_cbs[self.position[name]].isChecked() == False:
+                self.chan_inc_cbs[self.position[name]].toggle()
+            elif name not in default_keys and self.chan_inc_cbs[self.position[name]].isChecked() == True:
+                self.chan_inc_cbs[self.position[name]].toggle()
+
+        for feat in self.clust_ft_names:
+            if feat != '':
+                default_keys = list(default_set_feats.keys())
+                if feat in default_keys and self.clust_ft_cbs[self.position[feat]].isChecked() == False:
+                    self.clust_ft_cbs[self.position[feat]].toggle()
+                elif feat not in default_keys and self.clust_ft_cbs[self.position[feat]].isChecked() == True:
+                    self.clust_ft_cbs[self.position[feat]].toggle()
+
+        for option in self.report:
+            default_keys = list(default_reporting.keys())
+            if option in default_keys and self.report_cbs[self.position[option]].isChecked() == False:
+                self.report_cbs[self.position[option]].toggle()
+            elif option not in default_keys and self.report_cbs[self.position[option]].isChecked() == True:
+                self.report_cbs[self.position[option]].toggle()
+
+        self.num_tet.setText('8')
+
+        self.apply_tab1btn.animateClick()
 
     def apply_tab1(self):
         with open(self.settings_fname, 'r+') as filename:
@@ -677,10 +772,26 @@ class Settings_W(QtGui.QTabWidget):
                     else:
                         self.settings[name] = 0
 
+            chan_inc = [chan for chan in self.chan_names if self.settings[chan] == 1]
+            feat_inc = [feat for feat in self.clust_ft_names if self.settings[feat] == 1]
+
+            UseFeat = ''
+            start_feat = 1
+            for i in range(len(self.chan_names)):
+                for j in range(len(feat_inc)):
+                    if str(i+1) in chan_inc:
+                        UseFeat += '1'
+                    else:
+                        UseFeat += '0'
+            UseFeat += '1'
+
+            self.settings['NumFet'] = len(feat_inc)
             self.settings['NumTet'] = str(self.num_tet.text())
+            self.settings['UseFeatures'] = UseFeat
 
             self.backbtn.animateClick()
 
+        with open(self.settings_fname, 'w') as filename:
             json.dump(self.settings, filename)  # save the default values to this file
 
     def apply_tab2(self):
@@ -699,7 +810,7 @@ class Settings_W(QtGui.QTabWidget):
             self.settings['Subset'] = self.Subset.text()
 
             self.backbtn2.animateClick()
-
+        with open(self.settings_fname, 'w') as filename:
             json.dump(self.settings, filename)  # save the default values to this file
 
 class Choose_Dir(QtGui.QWidget):
@@ -724,7 +835,8 @@ class Choose_Dir(QtGui.QWidget):
 
         # ----------------- buttons ----------------------------
         self.dirbtn = QtGui.QPushButton('Choose Directory', self)
-        #dirbtn.clicked.connect(self.new_dir)
+        self.dirbtn.setToolTip('Click to choose a directory!')
+        # dirbtn.clicked.connect(self.new_dir)
 
         cur_dir_t = QtGui.QLabel('Current Directory:') #the label saying Current Directory
         self.cur_dir_e = QtGui.QLineEdit() # the label that states the current directory
@@ -821,17 +933,43 @@ def new_dir(self,main):
     main.cur_dir.setText(cur_dir_name)
     main.cur_dir_name = cur_dir_name
 
+def silent(self, state):
+    with open(self.settings_fname, 'r+') as filename:
+        settings = json.load(filename)
+        if state == True:
+            settings['Silent'] = 1
+        else:
+            settings['Silent'] = 0
+    with open(self.settings_fname, 'w') as filename:
+        json.dump(settings, filename)
+
+
+def hyper(self, state):
+    with open(self.settings_fname, 'r+') as filename:
+        settings = json.load(filename)
+        if state == True:
+            settings['Hyper'] = 1
+            self.hyperthread.setEnabled(1)
+        else:
+            settings['Hyper'] = 0
+            self.hyperthread.setDisabled(1)
+    with open(self.settings_fname, 'w') as filename:
+        json.dump(settings, filename)
+
 # ------- making a function that runs the entire GUI ----------
 def run():
     app = QtGui.QApplication(sys.argv)
 
     main_w = Window() # calling the main window
-    choose_dir_w = Choose_Dir() # calling the Choose Directory Window
-    settings_w = Settings_W() # calling the settings window
+    choose_dir_w = Choose_Dir()  # calling the Choose Directory Window
+    settings_w = Settings_W()  # calling the settings window
 
     choose_dir_w.cur_dir_name = main_w.cur_dir_name # synchs the current directory on the main window
 
-    main_w.raise_() # making the main window on top
+    main_w.raise_()  # making the main window on top
+
+    main_w.silent_cb.stateChanged.connect(lambda: silent(main_w, main_w.silent_cb.isChecked()))
+    main_w.hyperthread_cb.stateChanged.connect(lambda: hyper(main_w, main_w.hyperthread_cb.isChecked()))
 
     main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w,main_w)) # brings the directory window to the foreground
     #main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w))
