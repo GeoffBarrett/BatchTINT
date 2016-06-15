@@ -116,7 +116,7 @@ There is also a Multi-Thread checkbox. Once this is checked you will be able to 
 
 - Add multi-threading so it can analyze multiple tetrode files at the same time
 - Add a notification system so it can e-mail/text if the analysis has been completed or if an error has occured
-- 
+
 # Contact
 
 The author of this GUI is named Geoffrey Barrett, if you have any suggestions, questions, comments, etc. you can contact him at Geoffrey.M.Barrett@gmail.com.
