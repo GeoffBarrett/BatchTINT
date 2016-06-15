@@ -203,7 +203,7 @@ class runKlusta():
                                 pass
                             except PermissionError:
                                 processing = 1
-                '''
+
                 processing = 1
                 while processing:
                     processing = 0
@@ -213,7 +213,7 @@ class runKlusta():
                     except PermissionError:
                         processing = 1
 
-                '''
+
 
         cur_time = datetime.datetime.now().time()
         fin_msg = ': Analysis in this directory has been completed!'
