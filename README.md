@@ -119,4 +119,7 @@ There is also a Multi-Thread checkbox. Once this is checked you will be able to 
 
 # Contact
 
-The author of this GUI is named Geoffrey Barrett, if you have any suggestions, questions, comments, etc. you can contact him at Geoffrey.M.Barrett@gmail.com.
+The author of this GUI is named Geoffrey Barrett, if you have any suggestions, questions, comments, etc. you can contact him at Geoffrey.M.Barrett@gmail.com. You have full permission to look through the code and make appropriate changes to your lab, if your "default" parameters are different and you'd like them to default to a different set, then by all means change them. I uploaded this under the assumption that there are those out there who could benefit from having a GUI for batch processing.
+
+Best,
+Geoffrey M. Barrett
