@@ -69,7 +69,7 @@ class runKlusta():
                         print(already_done)
                         continue
 
-                    tet_path = os.path.join(dir_new, tet_fname)  # adding a .prm at the end will be the same as the PRM file
+                    tet_path = os.path.join(dir_new, tet_fname) 
 
                     ini_fname = tet_path + '.ini'
 
@@ -145,12 +145,12 @@ class runKlusta():
                         batch = bytes(
                             'tint ' + '"' + set_path + '" ' + str(
                                 tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
-                            ini_fname + '" /visible\n', 'ascii')
+                            ini_fname + '" /convertkk2cut /visible\n', 'ascii')
                     else:
                         batch = bytes(
                             'tint ' + '"' + set_path + '" ' + str(
                                 tetrode) + ' "' + log_fname + '" /runKK /KKoptions "' +
-                            ini_fname + '"\n', 'ascii')
+                            ini_fname + '" /convertkk2cut\n', 'ascii')
 
                     cmd.stdin.write(batch)
                     cmd.stdin.flush()

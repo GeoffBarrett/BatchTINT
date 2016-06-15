@@ -83,36 +83,36 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
 
         klustabtn.clicked.connect(lambda: self.klusta(self.cur_dir_name))  # defines the button functionality once pressed
 
-        # ------------------------------------ check box + hyperthread ------------------------------------------------
+        # ------------------------------------ check box + Multithread ------------------------------------------------
 
         self.silent_cb = QtGui.QCheckBox('Run Silently')
         self.silent_cb.setToolTip("Check if you want Tint to run in the background.")
 
-        self.hyperthread_cb = QtGui.QCheckBox('Hyperthread')
-        self.hyperthread_cb.setToolTip('Check if you want to run multiple tetrodes simultaneously')
+        self.Multithread_cb = QtGui.QCheckBox('Multi-thread')
+        self.Multithread_cb.setToolTip('Check if you want to run multiple tetrodes simultaneously')
 
-        hyperthread_l = QtGui.QLabel('# Threads:')
-        hyperthread_l.setToolTip('Input the number of tetrodes you want to run simultaneously')
+        Multithread_l = QtGui.QLabel('# Threads:')
+        Multithread_l.setToolTip('Input the number of tetrodes you want to run simultaneously')
 
-        self.hyperthread = QtGui.QLineEdit()
+        self.Multithread = QtGui.QLineEdit()
 
-        hyper_layout = QtGui.QHBoxLayout()
+        Multi_layout = QtGui.QHBoxLayout()
 
 
-        for order in [self.hyperthread_cb, hyperthread_l, self.hyperthread]:
+        for order in [self.Multithread_cb, Multithread_l, self.Multithread]:
             if 'Layout' in order.__str__():
-                hyper_layout.addLayout(order)
-                # hyper_layout.addStretch(1)
+                Multi_layout.addLayout(order)
+                # Multi_layout.addStretch(1)
             else:
-                hyper_layout.addWidget(order, 0, QtCore.Qt.AlignCenter)
-                # hyper_layout.addWidget(order)
-                # hyper_layout.addStretch(1)
+                Multi_layout.addWidget(order, 0, QtCore.Qt.AlignCenter)
+                # Multi_layout.addWidget(order)
+                # Multi_layout.addStretch(1)
 
         checkbox_layout = QtGui.QHBoxLayout()
         checkbox_layout.addStretch(1)
         checkbox_layout.addWidget(self.silent_cb)
         checkbox_layout.addStretch(1)
-        checkbox_layout.addLayout(hyper_layout)
+        checkbox_layout.addLayout(Multi_layout)
         checkbox_layout.addStretch(1)
 
         try:
@@ -120,14 +120,14 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
                 settings = json.load(filename)
                 if settings['Silent'] == 1:
                     self.silent_cb.toggle()
-                if settings['Hyper'] == 1:
-                    self.hyperthread_cb.toggle()
-                if settings['Hyper'] == 0:
-                    self.hyperthread.setDisabled(1)
+                if settings['Multi'] == 1:
+                    self.Multithread_cb.toggle()
+                if settings['Multi'] == 0:
+                    self.Multithread.setDisabled(1)
 
         except FileNotFoundError:
             self.silent_cb.toggle()
-            self.hyperthread.setDisabled(1)
+            self.Multithread.setDisabled(1)
 
         # ------------------------------------ version information -------------------------------------------------
         mod_date = time.ctime(os.path.getmtime(os.getcwd() + "\\BatchSort.py"))  # finds the modifcation date of the program
@@ -642,7 +642,7 @@ class Settings_W(QtGui.QTabWidget):
                 self.settings['NumTet'] = '8'
                 self.settings['NumFet'] = 3
                 self.settings['Silent'] = 1
-                self.settings['Hyper'] = 0
+                self.settings['Multi'] = 0
                 self.settings['UseFeatures'] = '1111111111111'
 
                 json.dump(self.settings, filename)  # save the default values to this file
@@ -948,15 +948,15 @@ def silent(self, state):
         json.dump(settings, filename)
 
 
-def hyper(self, state):
+def Multi(self, state):
     with open(self.settings_fname, 'r+') as filename:
         settings = json.load(filename)
         if state == True:
-            settings['Hyper'] = 1
-            self.hyperthread.setEnabled(1)
+            settings['Multi'] = 1
+            self.Multithread.setEnabled(1)
         else:
-            settings['Hyper'] = 0
-            self.hyperthread.setDisabled(1)
+            settings['Multi'] = 0
+            self.Multithread.setDisabled(1)
     with open(self.settings_fname, 'w') as filename:
         json.dump(settings, filename)
 
@@ -973,7 +973,7 @@ def run():
     main_w.raise_()  # making the main window on top
 
     main_w.silent_cb.stateChanged.connect(lambda: silent(main_w, main_w.silent_cb.isChecked()))
-    main_w.hyperthread_cb.stateChanged.connect(lambda: hyper(main_w, main_w.hyperthread_cb.isChecked()))
+    main_w.Multithread_cb.stateChanged.connect(lambda: Multi(main_w, main_w.Multithread_cb.isChecked()))
 
     main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w,main_w)) # brings the directory window to the foreground
     #main_w.choose_dir.clicked.connect(lambda: raise_w(choose_dir_w))
