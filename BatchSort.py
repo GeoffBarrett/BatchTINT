@@ -274,7 +274,7 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
                                 set_file = [file for file in f_list if '.set' in file]
 
                                 if set_file == []:
-                                    set_message = 'The following folder contains no .set file: ' + str(new_file)
+                                    set_message = "The following folder contains no '.set' file: " + str(new_file)
                                     print(set_message)
                                     continue
 
