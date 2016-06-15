@@ -203,7 +203,7 @@ class runKlusta():
                                 pass
                             except PermissionError:
                                 processing = 1
-
+                '''
                 processing = 1
                 while processing:
                     processing = 0
@@ -212,7 +212,7 @@ class runKlusta():
                         os.rename(dir_new, os.path.join(proc_f_dir, expt))
                     except PermissionError:
                         processing = 1
-
+                '''
 
 
         cur_time = datetime.datetime.now().time()
