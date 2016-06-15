@@ -7,11 +7,26 @@ class runKlusta():
         super(runKlusta, self).__init__()
 
     def klusta(self, expt, directory):
+
         cur_time = datetime.datetime.now().time()
         folder_msg = ': Now analyzing files in the "' + expt + '" folder!'
         print('[' + str(cur_time)[:8] + ']' + folder_msg)
 
         dir_new = os.path.join(directory, expt)  # makes a new directory
+
+        log_f_dir = os.path.join(dir_new, 'log_files')
+        ini_f_dir = os.path.join(dir_new, 'ini_files')
+
+        proc_f_dir = os.path.join(directory, 'Processed')
+
+        if not os.path.exists(proc_f_dir):
+            os.makedirs(proc_f_dir)
+
+        if not os.path.exists(log_f_dir):
+            os.makedirs(log_f_dir)
+
+        if not os.path.exists(ini_f_dir):
+            os.makedirs(ini_f_dir)
 
         self.settings_fname = 'settings.json'
 
@@ -42,6 +57,8 @@ class runKlusta():
                 cur_time = datetime.datetime.now().time()
                 no_files_msg = ': There are no files that need analyzing in the "' + expt + '" folder!'
                 print('[' + str(cur_time)[:8] + ']' + no_files_msg)
+            elif expt == 'Processed':
+                continue
             elif str(set_file[:-1]) + '.eeg' not in f_list:
                 cur_time = datetime.datetime.now().time()
                 no_eeg_msg = ': There is no "' + str(set_file[:-1]) + '.eeg' '" file in this folder, skipping analysis!'
@@ -167,12 +184,37 @@ class runKlusta():
                         if set_file[:-1] + '.clu.' + str(tetrode) in new_cont:
                             processing = 0
                             try:
-                                # os.rename(clu_name, cut_path)
+                                try:
+                                    # moves the log files
+                                    os.rename(log_fname, os.path.join(log_f_dir, tet_fname + '_log.txt'))
+
+                                except FileExistsError:
+                                    os.remove(os.path.join(log_f_dir, tet_fname + '_log.txt'))
+                                    os.rename(log_fname, os.path.join(log_f_dir, tet_fname + '_log.txt'))
+                                try:
+                                    # moves the .ini files
+                                    os.rename(ini_fname, os.path.join(ini_f_dir, tet_fname + '.ini'))
+                                except FileExistsError:
+                                    os.remove(os.path.join(ini_f_dir, tet_fname + '.ini'))
+                                    os.rename(ini_fname, os.path.join(ini_f_dir, tet_fname + '.ini'))
+
                                 finished_analysis = ': The analysis of the "' + tet_fname + '" file is finished!'
                                 print('[' + str(cur_time)[:8] + ']' + finished_analysis)
                                 pass
                             except PermissionError:
                                 processing = 1
+                '''
+                processing = 1
+                while processing:
+                    processing = 0
+                    try:
+                        # moves the entire folder to the processed folder
+                        os.rename(dir_new, os.path.join(proc_f_dir, expt))
+                    except PermissionError:
+                        processing = 1
+
+                '''
+
         cur_time = datetime.datetime.now().time()
         fin_msg = ': Analysis in this directory has been completed!'
         print('[' + str(cur_time)[:8] + ']' + fin_msg)

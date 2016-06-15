@@ -199,21 +199,29 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
             print('[' + str(cur_time)[:8] + ']: ' + dir_message)  # prints the display message
 
             # ------------- find all files within directory -------------------------------------
+
             expt_list = os.listdir(directory)   # finds the files within the directory
-            cur_time = datetime.datetime.now().time()
-            num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!'  # message that shows how many files were found
-            print('[' + str(cur_time)[:8] + ']' + num_files_dir_msg)  # prints message
+            if len(expt_list) == 1 and expt_list[0] == 'Processed':
+                cur_time = datetime.datetime.now().time()
+                no_files_dir_msg = ': There are no files to analyze in this directory!'  # message that shows how many files were found
+                print('[' + str(cur_time)[:8] + ']' + no_files_dir_msg)  # prints message
+            else:
+                cur_time = datetime.datetime.now().time()
+                num_files_dir_msg = ': Found ' + str(len(expt_list)) + ' files in the directory!'  # message that shows how many files were found
+                print('[' + str(cur_time)[:8] + ']' + num_files_dir_msg)  # prints message
 
             # ----------- cycle through each file and find the tetrode files ------------------------------------------
 
             for expt in expt_list: # finding all the folders within the directory
 
                 try:
+
                     dir_new = os.path.join(directory, expt) # sets a new filepath for the directory
                     f_list = os.listdir(dir_new)  # finds the files within that directory
                     set_file = [file for file in f_list if '.set' in file] # finds the set file
-
-                    if set_file == []: # if there is no set file it will return as an empty list
+                    if expt == 'Processed':
+                        continue
+                    elif set_file == []: # if there is no set file it will return as an empty list
                         cur_time = datetime.datetime.now().time()
                         set_message = ': The following folder contains no .set file: ' + str(expt)  # message saying no .set file
                         print('[' + str(cur_time)[:8] + ']' + set_message)  # prints the message on the CMD
@@ -240,7 +248,14 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
                     added = list(set(newcontents).difference(contents)) # finds the differences between the contents to state the files that were added
                     # added = list(added) #converts added to a list
                     if added: # runs if added exists as a variable
+
+
+
                         for new_file in added: # cycles through the added files to analyze
+
+                            if new_file == 'Processed':
+                                continue
+
                             start_path = os.path.join(directory, new_file)
                             total_size = 0
                             total_size_old = 0
@@ -280,6 +295,10 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
 
                                 RunKlustaV2.runKlusta.klusta(self, new_file,
                                                              directory)  # runs the function that will perform the klusta'ing
+                                dir_new = os.path.join(directory, expt)
+                                proc_f_dir = os.path.join(directory, 'Processed')
+                                os.rename(dir_new, os.path.join(proc_f_dir, expt))
+
                             except NotADirectoryError:
                                 print(directory + ' is not a directory, skipping analysis!')
                                 continue
