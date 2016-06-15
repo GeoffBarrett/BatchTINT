@@ -44,7 +44,7 @@ class runKlusta():
                 print('[' + str(cur_time)[:8] + ']' + no_files_msg)
             elif str(set_file[:-1]) + '.eeg' not in f_list:
                 cur_time = datetime.datetime.now().time()
-                no_eeg_msg = ': There is no "' + str(set_file[:-1]) + '.eeg' '" file in this folder!'
+                no_eeg_msg = ': There is no "' + str(set_file[:-1]) + '.eeg' '" file in this folder, skipping analysis!'
                 print('[' + str(cur_time)[:8] + ']' + no_eeg_msg)
                 continue
             else:
@@ -65,11 +65,11 @@ class runKlusta():
                     cut_name = set_file[:-1] + '_' + str(tetrode) + '.cut'
 
                     if cut_name in f_list:
-                        already_done = 'The ' + set_file[:-1] + ' has already been analyzed, skipping!'
+                        already_done = 'The ' + set_file[:-1] + ' has already been analyzed, skipping analysis!'
                         print(already_done)
                         continue
 
-                    tet_path = os.path.join(dir_new, tet_fname) 
+                    tet_path = os.path.join(dir_new, tet_fname)
 
                     ini_fname = tet_path + '.ini'
 
