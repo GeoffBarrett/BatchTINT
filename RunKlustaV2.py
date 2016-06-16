@@ -177,7 +177,7 @@ class runKlusta():
 
                     processing = 1
 
-                    while processing:
+                    while processing ==1:
                         time.sleep(2)
                         new_cont = os.listdir(dir_new)
 

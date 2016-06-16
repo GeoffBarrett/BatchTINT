@@ -231,7 +231,14 @@ class Window(QtGui.QWidget):  # defines the window class (main window)
 
                     dir_new = os.path.join(directory, expt)
                     proc_f_dir = os.path.join(directory, 'Processed')
-                    os.rename(dir_new, os.path.join(proc_f_dir, expt))
+                    processing = 1
+                    while processing == 1:
+                        processing = 0
+                        try:
+                            # moves the entire folder to the processed folder
+                            os.rename(dir_new, os.path.join(proc_f_dir, expt))
+                        except PermissionError:
+                            processing = 1
 
                 except NotADirectoryError:
                     cur_time = datetime.datetime.now().time()
