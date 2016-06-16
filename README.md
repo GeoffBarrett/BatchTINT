@@ -34,7 +34,7 @@ If you want it on your Desktop type in the following: cd "C:\Users\ [user name]\
 
 git clone https://github.com/GeoffBarrett/BatchTINT.git
 
-***Note: If there is an error produced by the Command Prompt saying the following:*** 
+***Note: This may take a few minutes. If there is an error produced by the Command Prompt saying the following:*** 
 
 ***'git' is not recognized as an internal or external command,operable program or batch file.***
 
