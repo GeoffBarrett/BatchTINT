@@ -82,7 +82,7 @@ python -m pip install [wheel file path]
 ***If you have spaces in your wheel file path make sure to surround the path by quotes***
 example: 
 
-python -m pip install "C:\Users\My Name\Desktop\GitHub\"
+python -m pip install "C:\Users\My Name\Desktop\GitHub\file.whl"
 
 The wheel files are the following:
 
