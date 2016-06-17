@@ -1,5 +1,5 @@
 # Outdated
-I have added significant changes to BatchTINT including simultaneous tetrode analysis.
+I have added significant changes to BatchTINT including simultaneous tetrode analysis, therefore I suggest you look at BatchTINTV2 (located at https://github.com/GeoffBarrett/BatchTINTV2). 
 
 # About BatchTINT
 BatchTINT is A GUI created by the Taub Institute in order to create an end-user friendly batch processing solution to complement Axona's new command line modification of TINT.
